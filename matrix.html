@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم الأدمن - إدارة وترتيب الصفحات</title>
     <style>
+        /* منع التظليل عن كامل الصفحة باستثناء حقول الإدخال والمحرر */
+        html, body, :not(textarea):not(input) {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        textarea, input {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+        }
+
         :root {
             --primary-color: #2c3e50;
             --accent-color: #18bc9c;
@@ -14,26 +29,12 @@
             --border-color: #dcdde1;
         }
 
-        /* جعل التحديد واللون الأزرق يختفي من كامل الصفحة */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             padding: 15px;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* استثناء حقول الإدخال والمحرر لضمان عمل الكتابة والنسخ بشكل طبيعي */
-        input, textarea, .file-name {
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
         }
 
         .container {
@@ -291,17 +292,13 @@
             width: 130px;
         }
         
+        /* ميزة اختيار التنسيق المضافة */
         .drawer-pos-selector {
             background: #f1f2f6;
-            padding: 12px 15px;
+            padding: 10px 15px;
             border-radius: 8px;
             margin-bottom: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .selector-row {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 15px;
             flex-wrap: wrap;
@@ -363,23 +360,20 @@
             <button class="btn btn-secondary" onclick="closeEditor()">إلغاء والعودة</button>
         </div>
 
-        <!-- ميزة تحديد مكان وتخصيص الهيدر -->
+        <!-- ميزة تحديد مكان القائمة المضافة حديثاً مع إضافة خيارات الـ HEX ولون واتجاه الهيدر -->
         <div class="drawer-pos-selector">
-            <div class="selector-row">
-                <span style="font-weight: bold; font-size: 0.9rem;">اتجاه ومكان الهيدر والقائمة (Direction):</span>
+            <div style="display: inline-flex; align-items: center; gap: 5px;">
+                <span style="font-weight: bold; font-size: 0.9rem;">إتجاه القائمة (Drawer):</span>
                 <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-weight:normal;">
-                    <input type="radio" name="drawer-pos" value="right" checked> يمين (RTL مناسب للعربية)
+                    <input type="radio" name="drawer-pos" value="right" checked> يمين (RTL)
                 </label>
                 <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-weight:normal;">
                     <input type="radio" name="drawer-pos" value="left"> يسار (LTR)
                 </label>
             </div>
-            <div class="selector-row" style="margin-top: 5px;">
-                <span style="font-weight: bold; font-size: 0.9rem;">لون خلفية الهيدر:</span>
-                <input type="color" id="header-bg-color" value="#2c3e50" style="cursor:pointer; width:40px; height:25px; padding:0; border:1px solid #ccc; border-radius:4px;">
-                
-                <span style="font-weight: bold; font-size: 0.9rem; margin-right: 15px;">لون نص وأيقونة الهيدر:</span>
-                <input type="color" id="header-text-color" value="#ffffff" style="cursor:pointer; width:40px; height:25px; padding:0; border:1px solid #ccc; border-radius:4px;">
+            <div style="display: inline-flex; align-items: center; gap: 8px;">
+                <span style="font-weight: bold; font-size: 0.9rem;">لون الهيدر (HEX):</span>
+                <input type="text" id="drawer-color-hex" value="#2c3e50" placeholder="#2c3e50" style="width: 100px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.85rem; text-align: center;">
             </div>
         </div>
 
@@ -873,18 +867,22 @@
             const cleanBase64 = data.content.replace(/\s/g, '');
             let decodedContent = decodeURIComponent(escape(atob(cleanBase64)));
             
+            // قراءة الخيار المخزن سابقاً لتحديد جهة الـ Drawer إن وجد
             if(decodedContent.includes('right: -280px;') || decodedContent.includes('right: 0;')) {
                 document.querySelector('input[name="drawer-pos"][value="right"]').checked = true;
             } else if(decodedContent.includes('left: -280px;') || decodedContent.includes('left: 0;')) {
                 document.querySelector('input[name="drawer-pos"][value="left"]').checked = true;
             }
 
-            // محاولة قراءة الألوان القديمة المخزنة في الـ CSS الخاص بالصفحة المحقونة إن وجدت
-            const bgMatch = decodedContent.match(/--header-bg:\s*(#[0-9a-fA-F]{3,6});/);
-            const textMatch = decodedContent.match(/--header-text:\s*(#[0-9a-fA-F]{3,6});/);
-            if(bgMatch) document.getElementById("header-bg-color").value = bgMatch[1];
-            if(textMatch) document.getElementById("header-text-color").value = textMatch[1];
+            // استخراج اللون المخزن سابقاً من الـ CSS المحقون إن وجد
+            const colorMatch = decodedContent.match(/--primary-header-color:\s*(#[a-fA-F0-9]{3,6})/);
+            if(colorMatch && colorMatch[1]) {
+                document.getElementById("drawer-color-hex").value = colorMatch[1];
+            } else {
+                document.getElementById("drawer-color-hex").value = "#2c3e50"; // افتراضي
+            }
 
+            // إزالة الأجزاء المحقونة تلقائياً لكي يرى المستخدم أو الـ AI كوداً نظيفاً
             decodedContent = decodedContent.replace(/<style id="admin-styles">[\s\S]*?<\/style>/g, "");
             decodedContent = decodedContent.replace(/<!-- START ADMIN DRAWER -->[\s\S]*?<!-- END ADMIN DRAWER -->/g, "");
             decodedContent = decodedContent.replace(/<script id="admin-scripts">[\s\S]*?<\/script>/g, "");
@@ -901,49 +899,49 @@
         let userContent = document.getElementById("code-editor").value;
         const pageName = currentFilePath.replace(".html", "");
 
+        // استخراج الجهة واللون المحددين
         const selectedPos = document.querySelector('input[name="drawer-pos"]:checked').value;
         const isRight = (selectedPos === "right");
-        
-        // جلب الألوان المخصصة من عناصر الـ input الخاصة بالألوان
-        const headerBgColor = document.getElementById("header-bg-color").value;
-        const headerTextColor = document.getElementById("header-text-color").value;
+        let hexColor = document.getElementById("drawer-color-hex").value.trim();
+        if(!hexColor.startsWith('#')) hexColor = '#' + hexColor;
 
+        // تنظيف احترازي لأي بقايا سابقة
         userContent = userContent.replace(/<style id="admin-styles">[\s\S]*?<\/style>/g, "");
         userContent = userContent.replace(/<!-- START ADMIN DRAWER -->[\s\S]*?<!-- END ADMIN DRAWER -->/g, "");
         userContent = userContent.replace(/<script id="admin-scripts">[\s\S]*?<\/script>/g, "");
 
-        // كود الـ Style المحقون مع ميزات عدم التحديد للألوان والاتجاهات المتغيرة
+        // كود الـ Style المحمي والمعدل ليدعم الاتجاهين واللون الـ HEX ديناميكياً مع دعم كامل لاتجاه النصوص الداخلي والـ Icons
         const adminStyles = '<style id="admin-styles">\n' +
-'        :root { --header-bg: ' + headerBgColor + '; --header-text: ' + headerTextColor + '; --card-bg: #ffffff; --accent-color: #16a085; }\n' +
-'        header { background: var(--header-bg); padding: 15px; color: var(--header-text); display: flex; align-items: center; justify-content: space-between; direction: ' + (isRight ? 'rtl' : 'ltr') + '; -webkit-user-select: none; user-select: none; }\n' +
-'        .header-brand { display: flex; align-items: center; gap: 15px; flex-direction: ' + (isRight ? 'row' : 'row-reverse') + '; }\n' +
-'        .header-brand button { color: var(--header-text); }\n' +
+'        :root { --primary-header-color: ' + hexColor + '; --accent-color: #16a085; --card-bg: #ffffff; }\n' +
+'        header { background: var(--primary-header-color); padding: 15px; color: white; display: flex; align-items: center; justify-content: space-between; direction: ' + (isRight ? 'rtl' : 'ltr') + '; }\n' +
+'        .header-brand { display: flex; align-items: center; gap: 15px; direction: ' + (isRight ? 'rtl' : 'ltr') + '; }\n' +
 '        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }\n' +
 '        .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: var(--card-bg); z-index: 1002; transition: all 0.3s ease; display: flex; flex-direction: column; direction: ' + (isRight ? 'rtl' : 'ltr') + '; ' + (isRight ? 'right: -280px;' : 'left: -280px;') + ' }\n' +
 '        .drawer.open { ' + (isRight ? 'right: 0;' : 'left: 0;') + ' }\n' +
-'        .drawer-header { background: var(--header-bg); color: var(--header-text); padding: 20px; font-weight: bold; text-align: start; }\n' +
+'        .drawer-header { background: var(--primary-header-color); color: white; padding: 20px; font-weight: bold; text-align: start; }\n' +
 '        .drawer-menu { list-style: none; padding: 10px 0; margin: 0; }\n' +
-'        .drawer-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; -webkit-user-select: none; user-select: none; }\n' +
+'        .drawer-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; text-align: start; flex-direction: ' + (isRight ? 'row' : 'row-reverse') + '; }\n' +
 '        .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--accent-color); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }\n' +
 '        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }\n' +
-'        body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }\n' +
 '    </style>';
 
+        // كود الـ HTML مع ضبط موقع زر الـ قائمة
         const adminDrawerHtml = '<!-- START ADMIN DRAWER -->\n' +
 '<header>\n' +
 '    <div class="header-brand">\n' +
-'        <button onclick="toggleDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer; padding:0; display:flex; align-items:center;">☰</button>\n' +
+'        <button onclick="toggleDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer; color:white; padding:0; display:flex; align-items:center;">☰</button>\n' +
 '        <span id="pageMainHeader" style="font-weight:bold;">' + pageName + '</span>\n' +
 '    </div>\n' +
 '</header>\n' +
 '<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>\n' +
 '<nav class="drawer" id="drawer">\n' +
-'    <div class="drawer-header">تصفح السور والصفحات</div>\n' +
+'    <div class="drawer-header">' + (isRight ? 'تصفح السور والصفحات' : 'Browse Pages') + '</div>\n' +
 '    <div id="drawerLoader" class="drawer-loader"></div>\n' +
 '    <ul class="drawer-menu" id="drawerDynamicMenu"></ul>\n' +
 '</nav>\n' +
 '<!-- END ADMIN DRAWER -->';
 
+        // سكريبت القراءة الذكية والحصينة مع الحفاظ على هيكلية الـ Row المتوافقة مع الاتجاه
         const adminScripts = '<script id="admin-scripts">\n' +
 '    const username = "' + GITHUB_USER + '";\n' +
 '    const repo = "' + GITHUB_REPO + '";\n' +
@@ -969,7 +967,7 @@
 '        orderedPages.forEach(page => {\n' +
 '            const li = document.createElement("li");\n' +
 '            li.className = "drawer-item";\n' +
-'            li.innerHTML = isRightDirection ? `<span>\u00A0\u00A0${page.title}</span><span>📖</span>` : `<span>📖</span><span>${page.title}\u00A0\u00A0</span>`;\n' +
+'            li.innerHTML = "<span>" + page.title + "</span><span>📖</span>";\n' +
 '            li.onclick = () => {\n' +
 '                if (typeof Android !== "undefined" && Android.openLocalPage) {\n' +
 '                    Android.openLocalPage(page.file);\n' +
@@ -1017,6 +1015,7 @@
 '    initDrawer();\n' +
 '<\/script>';
 
+        // ذكاء حقن الأكواد داخل الـ HTML الجديد
         if (userContent.includes("</head>")) {
             userContent = userContent.replace("</head>", adminStyles + "\n</head>");
         } else {
@@ -1039,7 +1038,7 @@
         const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${currentFilePath}`;
 
         const bodyData = {
-            message: `تعديل صفحة ${currentFilePath} وضبط اتجاه القائمة ولون الهيدر المخصص`,
+            message: `تعديل صفحة ${currentFilePath} وضبط اتجاه القائمة ولونها`,
             content: encodedContent,
             sha: currentFileSha
         };
@@ -1059,7 +1058,7 @@
         })
         .then(data => {
             currentFileSha = data.content.sha;
-            showAndroidToast(`تم الحفظ وتثبيت إعدادات الهيدر المخصصة بنجاح`);
+            showAndroidToast(`تم الحفظ بنجاح وتطبيق الاتجاه واللون الجديد`);
             updateVersionTxtOnGithub();
             closeEditor();
             loadHtmlFiles();
