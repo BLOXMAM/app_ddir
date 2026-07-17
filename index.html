@@ -34,7 +34,7 @@
 
 <main style="padding: 20px;">
     <h1>صفحة index</h1>
-    <p>هذه الصفحة تقوم بقراءة الترتيب والأسماء المخصصة من ملف order.json تلقائياً.</p>
+    <p>هذه الصفحة تقوم بقراءة الترتيب والأسماء المخصصة من ملف order.json تلقائياً وبشكل محمي ضد التنظيف.</p>
 </main>
 
 <script>
@@ -56,7 +56,6 @@
             li.className = "drawer-item";
             li.innerHTML = "<span>" + page.title + "</span><span>📖</span>";
             
-            // التعديل الهام: بدلاً من تصفح رابط خارجي، يتم التصفح محلياً من الـ filesDir عن طريق الجسر
             li.onclick = () => {
                 if (typeof Android !== "undefined" && Android.openLocalPage) {
                     Android.openLocalPage(page.file);
@@ -70,24 +69,48 @@
 
     async function initDrawer() {
         const loader = document.getElementById("drawerLoader");
+        let loadedSuccessfully = false;
+
         try {
-            // محاولة جلب ملف الترتيب محلياً أولاً لتشغيل القائمة الهيدر بشكل سريع
-            const res = await fetch(`order.json`);
-            if (!res.ok) throw new Error();
-            const orderedPages = await res.json();
-            renderDrawerContent(orderedPages);
+            // 1. التعديل الأساسي: محاولة القراءة الحصينة مباشرة من نظام ملفات الأندرويد getFilesDir()
+            if (typeof Android !== "undefined" && Android.readLocalFile) {
+                const localData = Android.readLocalFile("order.json");
+                if (localData && localData.trim() !== "") {
+                    const orderedPages = JSON.parse(localData);
+                    renderDrawerContent(orderedPages);
+                    loadedSuccessfully = true;
+                    console.log("تم تحميل الترتيب محلياً من المسار المحمي بنجاح!");
+                }
+            }
+            
+            // 2. إذا لم يكن الجسر متاحاً أو الملف فارغاً، نحاول طريقة الـ fetch التقليدية كخيار ثانٍ
+            if (!loadedSuccessfully) {
+                const res = await fetch(`order.json`);
+                if (res.ok) {
+                    const orderedPages = await res.json();
+                    renderDrawerContent(orderedPages);
+                    loadedSuccessfully = true;
+                } else {
+                    throw new Error();
+                }
+            }
         } catch(e) {
-            // في حال عدم توفر الملف محلياً يتم جلبه عبر السيرفر كبديل احتياطي
-            try {
-                const resAlt = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/order.json`);
-                const dataAlt = await resAlt.json();
-                const decodedContent = decodeURIComponent(escape(atob(dataAlt.content.replace(/\s/g, ""))));
-                renderDrawerContent(JSON.parse(decodedContent));
-            } catch(err) { console.log("خطأ في جلب الهيدر"); }
+            // 3. الحل الاحتياطي الأخير في حال مسح كل شيء وعدم وجود الملف محلياً: جلب النسخة الحية من السيرفر
+            if (!loadedSuccessfully) {
+                try {
+                    const resAlt = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/order.json`);
+                    const dataAlt = await resAlt.json();
+                    const decodedContent = decodeURIComponent(escape(atob(dataAlt.content.replace(/\s/g, ""))));
+                    renderDrawerContent(JSON.parse(decodedContent));
+                } catch(err) { 
+                    console.log("خطأ في جلب الهيدر أوفلاين وأونلاين"); 
+                }
+            }
         } finally {
             loader.style.display = "none";
         }
     }
+    
     initDrawer();
 </script>
 </body>
