@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم الأدمن - المزايا المتقدمة (نسخة مصححة)</title>
+    <title>لوحة تحكم الأدمن - إدارة وترتيب الصفحات</title>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -14,12 +14,26 @@
             --border-color: #dcdde1;
         }
 
+        /* جعل التحديد واللون الأزرق يختفي من كامل الصفحة */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             padding: 15px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* استثناء حقول الإدخال والمحرر لضمان عمل الكتابة والنسخ بشكل طبيعي */
+        input, textarea, .file-name {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
 
         .container {
@@ -277,31 +291,20 @@
             width: 130px;
         }
         
-        .customization-bar {
+        .drawer-pos-selector {
             background: #f1f2f6;
             padding: 12px 15px;
             border-radius: 8px;
             margin-bottom: 12px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            align-items: center;
+            flex-direction: column;
+            gap: 10px;
         }
-
-        .custom-field {
+        .selector-row {
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-
-        .hex-input {
-            width: 90px !important;
-            padding: 5px 8px !important;
-            font-family: monospace;
-            text-align: center;
-            font-size: 0.9rem;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
+            gap: 15px;
+            flex-wrap: wrap;
         }
     </style>
 </head>
@@ -360,20 +363,23 @@
             <button class="btn btn-secondary" onclick="closeEditor()">إلغاء والعودة</button>
         </div>
 
-        <div class="customization-bar">
-            <div class="custom-field">
-                <span style="font-weight: bold; font-size: 0.9rem;">اتجاه الهيدر والـ Drawer:</span>
-                <label style="cursor:pointer; font-weight:normal; display:flex; align-items:center; gap:3px;">
-                    <input type="radio" name="drawer-pos" value="right" checked> يمين (RTL)
+        <!-- ميزة تحديد مكان وتخصيص الهيدر -->
+        <div class="drawer-pos-selector">
+            <div class="selector-row">
+                <span style="font-weight: bold; font-size: 0.9rem;">اتجاه ومكان الهيدر والقائمة (Direction):</span>
+                <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-weight:normal;">
+                    <input type="radio" name="drawer-pos" value="right" checked> يمين (RTL مناسب للعربية)
                 </label>
-                <label style="cursor:pointer; font-weight:normal; display:flex; align-items:center; gap:3px;">
+                <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-weight:normal;">
                     <input type="radio" name="drawer-pos" value="left"> يسار (LTR)
                 </label>
             </div>
-            
-            <div class="custom-field">
-                <span style="font-weight: bold; font-size: 0.9rem;">لون الهيدر والـ Drawer (HEX):</span>
-                <input type="text" id="header-color-hex" class="hex-input" value="#2c3e50" placeholder="#2c3e50">
+            <div class="selector-row" style="margin-top: 5px;">
+                <span style="font-weight: bold; font-size: 0.9rem;">لون خلفية الهيدر:</span>
+                <input type="color" id="header-bg-color" value="#2c3e50" style="cursor:pointer; width:40px; height:25px; padding:0; border:1px solid #ccc; border-radius:4px;">
+                
+                <span style="font-weight: bold; font-size: 0.9rem; margin-right: 15px;">لون نص وأيقونة الهيدر:</span>
+                <input type="color" id="header-text-color" value="#ffffff" style="cursor:pointer; width:40px; height:25px; padding:0; border:1px solid #ccc; border-radius:4px;">
             </div>
         </div>
 
@@ -420,16 +426,9 @@
         GITHUB_TOKEN = localStorage.getItem("git_token");
 
         if (GITHUB_USER && GITHUB_REPO && GITHUB_TOKEN) {
-            // ملء الحقول تلقائياً في الواجهة للراحة في حال الرغبة بتعديلها
-            document.getElementById("git-user").value = GITHUB_USER;
-            document.getElementById("git-repo").value = GITHUB_REPO;
-            document.getElementById("git-token").value = GITHUB_TOKEN;
-
             document.getElementById("login-container").style.display = "none";
             document.getElementById("main-container").style.display = "block";
             document.getElementById("repo-title").innerText = `مستودع: ${GITHUB_USER}/${GITHUB_REPO}`;
-            
-            // جلب البيانات بعد الاطمئنان من تعيين المتغيرات بالكامل
             loadHtmlFiles();
             loadOrderJson();
         } else {
@@ -454,17 +453,12 @@
         localStorage.setItem("git_token", token);
 
         showAndroidToast("تم حفظ اعدادات الاتصال بنجاح");
-        
-        // إعادة تعيين المتغيرات فوراً من الذاكرة لضمان تفعيل الاتصال دون تعليق
         checkAuth();
     }
 
     function logout() {
         if(confirm("هل تريد بالتأكيد تسجيل الخروج وتعديل بيانات الاتصال بالـ GitHub؟")) {
             localStorage.clear();
-            document.getElementById("git-user").value = "";
-            document.getElementById("git-repo").value = "";
-            document.getElementById("git-token").value = "";
             checkAuth();
         }
     }
@@ -576,7 +570,6 @@
     }
 
     function updateVersionTxtOnGithub() {
-        if(!GITHUB_USER || !GITHUB_REPO || !GITHUB_TOKEN) return;
         const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/version.txt`;
 
         fetch(url, {
@@ -633,7 +626,6 @@
     }
 
     function loadOrderJson() {
-        if(!GITHUB_USER || !GITHUB_REPO || !GITHUB_TOKEN) return;
         const orderLoader = document.getElementById("order-loader");
         const orderListContainer = document.getElementById("order-list");
         orderLoader.style.display = "block";
@@ -771,7 +763,6 @@
     }
 
     function saveOrderJson() {
-        if(!GITHUB_USER || !GITHUB_REPO || !GITHUB_TOKEN) return;
         const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/order.json`;
         const jsonContent = JSON.stringify(pagesOrder, null, 2);
         const encodedContent = btoa(unescape(encodeURIComponent(jsonContent)));
@@ -810,7 +801,6 @@
     }
 
     function loadHtmlFiles() {
-        if(!GITHUB_USER || !GITHUB_REPO || !GITHUB_TOKEN) return;
         const loader = document.getElementById("loader");
         const listContainer = document.getElementById("files-list");
         
@@ -862,7 +852,6 @@
     }
 
     function editFile(path, sha) {
-        if(!GITHUB_USER || !GITHUB_REPO || !GITHUB_TOKEN) return;
         currentFilePath = path;
         currentFileSha = sha;
         
@@ -884,18 +873,17 @@
             const cleanBase64 = data.content.replace(/\s/g, '');
             let decodedContent = decodeURIComponent(escape(atob(cleanBase64)));
             
-            if(decodedContent.includes('right: -280px;') || decodedContent.includes('flex-direction: row;')) {
+            if(decodedContent.includes('right: -280px;') || decodedContent.includes('right: 0;')) {
                 document.querySelector('input[name="drawer-pos"][value="right"]').checked = true;
-            } else if(decodedContent.includes('left: -280px;') || decodedContent.includes('flex-direction: row-reverse;')) {
+            } else if(decodedContent.includes('left: -280px;') || decodedContent.includes('left: 0;')) {
                 document.querySelector('input[name="drawer-pos"][value="left"]').checked = true;
             }
 
-            const colorMatch = decodedContent.match(/--primary-color:\s*(#[0-9a-fA-F]{3,6})/);
-            if (colorMatch && colorMatch[1]) {
-                document.getElementById("header-color-hex").value = colorMatch[1];
-            } else {
-                document.getElementById("header-color-hex").value = "#2c3e50"; 
-            }
+            // محاولة قراءة الألوان القديمة المخزنة في الـ CSS الخاص بالصفحة المحقونة إن وجدت
+            const bgMatch = decodedContent.match(/--header-bg:\s*(#[0-9a-fA-F]{3,6});/);
+            const textMatch = decodedContent.match(/--header-text:\s*(#[0-9a-fA-F]{3,6});/);
+            if(bgMatch) document.getElementById("header-bg-color").value = bgMatch[1];
+            if(textMatch) document.getElementById("header-text-color").value = textMatch[1];
 
             decodedContent = decodedContent.replace(/<style id="admin-styles">[\s\S]*?<\/style>/g, "");
             decodedContent = decodedContent.replace(/<!-- START ADMIN DRAWER -->[\s\S]*?<!-- END ADMIN DRAWER -->/g, "");
@@ -910,43 +898,41 @@
     }
 
     function saveFileContent() {
-        if(!GITHUB_USER || !GITHUB_REPO || !GITHUB_TOKEN) return;
         let userContent = document.getElementById("code-editor").value;
         const pageName = currentFilePath.replace(".html", "");
 
         const selectedPos = document.querySelector('input[name="drawer-pos"]:checked').value;
         const isRight = (selectedPos === "right");
         
-        let hexColor = document.getElementById("header-color-hex").value.trim();
-        if(!hexColor.startsWith('#')) hexColor = '#' + hexColor;
-        
-        if(!/^#[0-9A-Ff-a]{3,6}$/i.test(hexColor)) {
-            alert("يرجى إدخال كود لون HEX صحيح! (مثال: #2c3e50)");
-            return;
-        }
+        // جلب الألوان المخصصة من عناصر الـ input الخاصة بالألوان
+        const headerBgColor = document.getElementById("header-bg-color").value;
+        const headerTextColor = document.getElementById("header-text-color").value;
 
         userContent = userContent.replace(/<style id="admin-styles">[\s\S]*?<\/style>/g, "");
         userContent = userContent.replace(/<!-- START ADMIN DRAWER -->[\s\S]*?<!-- END ADMIN DRAWER -->/g, "");
         userContent = userContent.replace(/<script id="admin-scripts">[\s\S]*?<\/script>/g, "");
 
+        // كود الـ Style المحقون مع ميزات عدم التحديد للألوان والاتجاهات المتغيرة
         const adminStyles = '<style id="admin-styles">\n' +
-'        :root { --primary-color: ' + hexColor + '; --accent-color: #16a085; --card-bg: #ffffff; }\n' +
-'        header { background: var(--primary-color); padding: 15px; color: white; display: flex; align-items: center; justify-content: space-between; direction: ' + (isRight ? 'rtl' : 'ltr') + '; }\n' +
+'        :root { --header-bg: ' + headerBgColor + '; --header-text: ' + headerTextColor + '; --card-bg: #ffffff; --accent-color: #16a085; }\n' +
+'        header { background: var(--header-bg); padding: 15px; color: var(--header-text); display: flex; align-items: center; justify-content: space-between; direction: ' + (isRight ? 'rtl' : 'ltr') + '; -webkit-user-select: none; user-select: none; }\n' +
 '        .header-brand { display: flex; align-items: center; gap: 15px; flex-direction: ' + (isRight ? 'row' : 'row-reverse') + '; }\n' +
+'        .header-brand button { color: var(--header-text); }\n' +
 '        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }\n' +
-'        .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: var(--card-bg); z-index: 1002; transition: all 0.3s ease; display: flex; flex-direction: column; text-align: ' + (isRight ? 'right' : 'left') + '; ' + (isRight ? 'right: -280px;' : 'left: -280px;') + ' }\n' +
+'        .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: var(--card-bg); z-index: 1002; transition: all 0.3s ease; display: flex; flex-direction: column; direction: ' + (isRight ? 'rtl' : 'ltr') + '; ' + (isRight ? 'right: -280px;' : 'left: -280px;') + ' }\n' +
 '        .drawer.open { ' + (isRight ? 'right: 0;' : 'left: 0;') + ' }\n' +
-'        .drawer-header { background: var(--primary-color); color: white; padding: 20px; font-weight: bold; text-align: ' + (isRight ? 'right' : 'left') + '; }\n' +
+'        .drawer-header { background: var(--header-bg); color: var(--header-text); padding: 20px; font-weight: bold; text-align: start; }\n' +
 '        .drawer-menu { list-style: none; padding: 10px 0; margin: 0; }\n' +
-'        .drawer-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; flex-direction: ' + (isRight ? 'row' : 'row-reverse') + '; }\n' +
+'        .drawer-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; -webkit-user-select: none; user-select: none; }\n' +
 '        .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--accent-color); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }\n' +
 '        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }\n' +
+'        body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }\n' +
 '    </style>';
 
         const adminDrawerHtml = '<!-- START ADMIN DRAWER -->\n' +
 '<header>\n' +
 '    <div class="header-brand">\n' +
-'        <button onclick="toggleDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer; color:white; padding:0; display:flex; align-items:center;">☰</button>\n' +
+'        <button onclick="toggleDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer; padding:0; display:flex; align-items:center;">☰</button>\n' +
 '        <span id="pageMainHeader" style="font-weight:bold;">' + pageName + '</span>\n' +
 '    </div>\n' +
 '</header>\n' +
@@ -962,6 +948,7 @@
 '    const username = "' + GITHUB_USER + '";\n' +
 '    const repo = "' + GITHUB_REPO + '";\n' +
 '    const currentFileName = "' + currentFilePath + '";\n' +
+'    const isRightDirection = ' + isRight + ';\n' +
 '\n' +
 '    function toggleDrawer() {\n' +
 '        const drawer = document.getElementById("drawer");\n' +
@@ -982,7 +969,7 @@
 '        orderedPages.forEach(page => {\n' +
 '            const li = document.createElement("li");\n' +
 '            li.className = "drawer-item";\n' +
-'            li.innerHTML = "<span>" + page.title + "</span><span>📖</span>";\n' +
+'            li.innerHTML = isRightDirection ? `<span>\u00A0\u00A0${page.title}</span><span>📖</span>` : `<span>📖</span><span>${page.title}\u00A0\u00A0</span>`;\n' +
 '            li.onclick = () => {\n' +
 '                if (typeof Android !== "undefined" && Android.openLocalPage) {\n' +
 '                    Android.openLocalPage(page.file);\n' +
@@ -1052,7 +1039,7 @@
         const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${currentFilePath}`;
 
         const bodyData = {
-            message: `تحديث مظهر صفحة ${currentFilePath} - اتجاه ${selectedPos} ولون ${hexColor}`,
+            message: `تعديل صفحة ${currentFilePath} وضبط اتجاه القائمة ولون الهيدر المخصص`,
             content: encodedContent,
             sha: currentFileSha
         };
@@ -1072,7 +1059,7 @@
         })
         .then(data => {
             currentFileSha = data.content.sha;
-            showAndroidToast(`تم حفظ التصميم واللون ${hexColor} بنجاح!`);
+            showAndroidToast(`تم الحفظ وتثبيت إعدادات الهيدر المخصصة بنجاح`);
             updateVersionTxtOnGithub();
             closeEditor();
             loadHtmlFiles();
@@ -1083,7 +1070,6 @@
     }
 
     function deleteFile(path, sha) {
-        if(!GITHUB_USER || !GITHUB_REPO || !GITHUB_TOKEN) return;
         if (!confirm(`هل أنت متأكد تماماً من رغبتك في حذف الصفحة "${path}" بشكل نهائي؟`)) {
             return;
         }
