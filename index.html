@@ -40,6 +40,7 @@
 <script>
     const username = "BLOXMAM";
     const repo = "app_ddir";
+    const CACHE_KEY = "offline_order_pages";
 
     function toggleDrawer() {
         const drawer = document.getElementById("drawer");
@@ -51,10 +52,15 @@
     function renderDrawerContent(orderedPages) {
         const drawerMenu = document.getElementById("drawerDynamicMenu");
         drawerMenu.innerHTML = "";
+        
+        if (!orderedPages || orderedPages.length === 0) {
+            drawerMenu.innerHTML = "<li class='drawer-item' style='color: #888; justify-content: center;'>لا توجد صفحات محملة بعد</li>";
+            return;
+        }
+
         orderedPages.forEach(page => {
             const li = document.createElement("li");
             li.className = "drawer-item";
-            // استخدام العنوان المخصص (title) بدلاً من اسم الملف
             li.innerHTML = "<span>" + page.title + "</span><span>📖</span>";
             li.onclick = () => { window.location.href = page.file; };
             drawerMenu.appendChild(li);
@@ -63,19 +69,41 @@
 
     async function initDrawer() {
         const loader = document.getElementById("drawerLoader");
+        
+        // 1. عرض سريع جداً من الـ LocalStorage إذا كان متوفراً لمنع أي تأخير في الواجهة
+        const localCache = localStorage.getItem(CACHE_KEY);
+        if (localCache) {
+            try {
+                renderDrawerContent(JSON.parse(localCache));
+                loader.style.display = "none";
+            } catch(e) {
+                console.log("خطأ في قراءة الكاش المؤقت");
+            }
+        }
+
+        // 2. القراءة والمزامنة الحصرية والمضمونة 100% من الـ filesDir (Local Path)
         try {
-            const res = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/order.json`);
-            if (!res.ok) throw new Error();
-            const data = await res.json();
-            const decoded = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ""))));
-            const orderedPages = JSON.parse(decoded);
-            renderDrawerContent(orderedPages);
+            // كود الأندرويد لديك يقوم بالفعل بحفظ الملفات داخل filesDir ويشغل الـ WebView منها
+            // لذلك طلب 'order.json' مباشرة سيتوجه فوراً للملف المخزن محلياً والمحمي من التنظيف
+            const localRes = await fetch('order.json');
+            
+            if (localRes.ok) {
+                const orderedPages = await localRes.json();
+                
+                // تحديث الـ LocalStorage والواجهة بالبيانات المضمونة من الـ filesDir
+                localStorage.setItem(CACHE_KEY, JSON.stringify(orderedPages));
+                renderDrawerContent(orderedPages);
+            } else {
+                throw new Error("الملف غير موجود في filesDir حالياً");
+            }
         } catch(e) {
-            console.log("خطأ في تحميل القائمة الجانبية");
+            console.log("اعتماد على الكاش؛ تعذر الوصول لملف order.json المحلي:", e.message);
         } finally {
             loader.style.display = "none";
         }
     }
+
+    // تشغيل الدالة فوراً
     initDrawer();
 </script>
 </body>
