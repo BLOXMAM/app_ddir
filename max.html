@@ -3,79 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>max</title>
+    <title>أدمن - إنشاء الصفحات الذكية</title>
     <style>
-        :root { --primary-color: #2c3e50; --accent-color: #16a085; --card-bg: #ffffff; }
-        body { font-family: sans-serif; margin: 0; background: #f5f6fa; }
-        header { background: var(--primary-color); padding: 15px; color: white; display: flex; align-items: center; }
-        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }
-        .drawer { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: var(--card-bg); z-index: 1002; transition: right 0.3s; display: flex; flex-direction: column; }
-        .drawer.open { right: 0; }
-        .drawer-header { background: var(--primary-color); color: white; padding: 20px; font-weight: bold; }
-        .drawer-menu { list-style: none; padding: 10px 0; }
-        .drawer-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; }
-        .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--accent-color); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f9fafb;
+            --card-bg: #ffffff;
+            --text: #111827;
+            --border: #e5e7eb;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
+        }
+        h2 { margin-top: 0; font-size: 1.25rem; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: var(--primary-hover);
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <button onclick="toggleDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer; color:white;">☰</button>
-    <span style="margin-right: 15px; font-weight:bold;">max</span>
-</header>
+<div class="container">
+    <div class="card">
+        <h2>إنشاء وتصدير صفحة جديدة بـ (Header) موحد</h2>
+        
+        <div class="form-group">
+            <label for="page-name">اسم الملف الفريد (بالإنجليزي - مثال: files.html):</label>
+            <input type="text" id="page-name" placeholder="files.html">
+        </div>
 
-<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
-<nav class="drawer" id="drawer">
-    <div class="drawer-header">تصفح السور والصفحات</div>
-    <div id="drawerLoader" class="drawer-loader"></div>
-    <ul class="drawer-menu" id="drawerDynamicMenu"></ul>
-</nav>
+        <div class="form-group">
+            <label for="page-title">عنوان الصفحة (يظهر في التبويب والهيدر):</label>
+            <input type="text" id="page-title" placeholder="صفحة ملفاتي">
+        </div>
 
-<main style="padding: 20px;">
-    <h1>صفحة max</h1>
-    <p>هذه الصفحة تقوم بقراءة الترتيب والأسماء المخصصة من ملف order.json تلقائياً.</p>
-</main>
+        <div class="form-group">
+            <label for="page-content">محتوى الصفحة الداخلي (HTML / نصوص):</label>
+            <textarea id="page-content" rows="8" placeholder="ضع هنا محتوى الصفحة أو كود الـ HTML الداخلي..."></textarea>
+        </div>
+
+        <button onclick="buildAndSavePage()">حفظ وتصدير إلى جهاز اليوزر 💾</button>
+    </div>
+</div>
 
 <script>
-    const username = "BLOXMAM";
-    const repo = "app_ddir";
-
-    function toggleDrawer() {
-        const drawer = document.getElementById("drawer");
-        const overlay = document.getElementById("drawerOverlay");
-        drawer.classList.toggle("open");
-        overlay.style.display = drawer.classList.contains("open") ? "block" : "none";
-    }
-
-    function renderDrawerContent(orderedPages) {
-        const drawerMenu = document.getElementById("drawerDynamicMenu");
-        drawerMenu.innerHTML = "";
-        orderedPages.forEach(page => {
-            const li = document.createElement("li");
-            li.className = "drawer-item";
-            li.innerHTML = "<span>" + page.title + "</span><span>📖</span>";
-            li.onclick = () => { window.location.href = page.file; };
-            drawerMenu.appendChild(li);
-        });
-    }
-
-    async function initDrawer() {
-        const loader = document.getElementById("drawerLoader");
-        try {
-            const res = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/order.json`);
-            if (!res.ok) throw new Error();
-            const data = await res.json();
-            const decoded = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ""))));
-            const orderedPages = JSON.parse(decoded);
-            renderDrawerContent(orderedPages);
-        } catch(e) {
-            console.log("خطأ في تحميل القائمة الجانبية");
-        } finally {
-            loader.style.display = "none";
+    // لإرسال الـ Toasts للأندرويد بشكل سليم ومفلتر
+    function showAndroidToast(message) {
+        if (window.Android && typeof window.Android.callAndroidBlock === "function") {
+            window.Android.callAndroidBlock(String(message));
+        } else {
+            console.log("Toast: " + message);
         }
     }
-    initDrawer();
+
+    function buildAndSavePage() {
+        const nameInput = document.getElementById('page-name');
+        const titleInput = document.getElementById('page-title');
+        const contentInput = document.getElementById('page-content');
+
+        let fileName = nameInput.value.trim();
+        let pageTitle = titleInput.value.trim() || "صفحة فرعية";
+        let rawContent = contentInput.value;
+
+        if (!fileName) {
+            showAndroidToast("يرجى إدخال اسم الملف أولاً!");
+            return;
+        }
+
+        if (!fileName.endsWith('.html')) {
+            fileName += '.html';
+        }
+
+        // === البرمجة الافتراضية للهيدر والتنقل (Template) ===
+        // هذا الهيكل سيتم حفظه مع كل صفحة جديدة ليتنقل اليوزر بينها محلياً في الـ filesDir
+        const finalHTMLStructure = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${pageTitle}</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        /* الهيدر الافتراضي الموحد للتنقل بين الصفحات المحلية */
+        .app-header {
+            background-color: #1e1b4b;
+            color: #ffffff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .app-header .title {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .content-container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الهيدر الافتراضي -->
+    <header class="app-header">
+        <span class="title">${pageTitle}</span>
+        <nav class="nav-links">
+            <!-- أزرار تنقل تستدعي دالة الأندرويد لفتح الملفات من الـ Local Path -->
+            <button class="nav-btn" onclick="goToLocalPage('index.html')">الرئيسية</button>
+            <button class="nav-btn" onclick="goToLocalPage('${fileName}')">تحديث</button>
+        </nav>
+    </header>
+
+    <!-- المحتوى الخاص بالصفحة -->
+    <main class="content-container">
+        ${rawContent || '<p style="text-align:center; color:#6b7280;">لا يوجد محتوى مضاف بعد.</p>'}
+    </main>
+
+    <script>
+        // دالة تنقل ذكية تفتح الصفحات من الـ filesDir لليوزر مباشرة
+        function goToLocalPage(targetName) {
+            if (window.Android && typeof window.Android.openLocalPage === 'function') {
+                window.Android.openLocalPage(targetName);
+            } else {
+                window.location.href = targetName;
+            }
+        }
+    <\/script>
+
+</body>
+</html>`;
+
+        // إرسال الملف وقالب الهيدر لحفظه في الـ filesDir
+        if (window.Android && typeof window.Android.saveNewPage === "function") {
+            window.Android.saveNewPage(fileName, finalHTMLStructure);
+            
+            // تنظيف الحقول للاستعداد للصفحة القادمة
+            nameInput.value = "";
+            titleInput.value = "";
+            contentInput.value = "";
+        } else {
+            showAndroidToast("جسر الأندرويد غير متصل بالمتصفح، تم عرض الكود في الكونسول.");
+            console.log(finalHTMLStructure);
+        }
+    }
 </script>
+
 </body>
 </html>
