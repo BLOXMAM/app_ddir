@@ -17,6 +17,7 @@
         .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--accent-color); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
+
 <style id="admin-styles">
         :root { --header-bg: #4d00ff; --header-text: #ffffff; --card-bg: #ffffff; --accent-color: #16a085; }
         header { background: var(--header-bg); padding: 15px; color: var(--header-text); display: flex; align-items: center; justify-content: space-between; direction: rtl; -webkit-user-select: none; user-select: none; }
@@ -48,6 +49,7 @@
     <ul class="drawer-menu" id="drawerDynamicMenu"></ul>
 </nav>
 <!-- END ADMIN DRAWER -->
+
 
 <header>
     <button onclick="toggleDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer; color:white;">☰</button>
@@ -145,6 +147,7 @@
     }
     initDrawer();
 </script>
+
 <script id="admin-scripts">
     const username = "BLOXMAM";
     const repo = "app_ddir";
