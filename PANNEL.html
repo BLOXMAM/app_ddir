@@ -3,118 +3,1160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PANNEL</title>
+    <title>لوحة تحكم الأدمن - إدارة وترتيب الصفحات</title>
     <style>
-        :root { --primary-color: #2c3e50; --accent-color: #16a085; --card-bg: #ffffff; }
-        body { font-family: sans-serif; margin: 0; background: #f5f6fa; }
-        header { background: var(--primary-color); padding: 15px; color: white; display: flex; align-items: center; }
-        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }
-        .drawer { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: var(--card-bg); z-index: 1002; transition: right 0.3s; display: flex; flex-direction: column; }
-        .drawer.open { right: 0; }
-        .drawer-header { background: var(--primary-color); color: white; padding: 20px; font-weight: bold; }
-        .drawer-menu { list-style: none; padding: 10px 0; }
-        .drawer-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; }
-        .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--accent-color); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* إيقاف التظليل عدا حقول الإدخال والمحرر للبحث والنسخ */
+        html, body, :not(textarea):not(input) {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        textarea, input {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #18bc9c;
+            --bg-color: #f5f6fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dcdde1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 8px;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            line-height: 1.5;
+            direction: ltr;
+            text-align: left;
+            tab-size: 4;
+            outline: none;
+        }
+
+        .editor-tools {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .find-replace-bar {
+            display: flex;
+            gap: 8px;
+            background: #eaeaea;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .find-replace-bar input {
+            flex: 1;
+            min-width: 120px;
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+
+        .btn-secondary {
+            background-color: #7f8c8d;
+        }
+
+        .btn-dark {
+            background-color: #34495e;
+        }
+
+        .file-list, .order-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .file-item, .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+
+        .file-item:hover, .order-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .file-name {
+            font-weight: 500;
+            cursor: pointer;
+            color: #2980b9;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 22px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        #editor-container {
+            display: none;
+        }
+
+        #login-container {
+            display: block;
+        }
+
+        #main-container {
+            display: none;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .order-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .btn-arrow {
+            background: #34495e;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .title-input {
+            padding: 4px 8px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 130px;
+        }
+        
+        .drawer-pos-selector {
+            background: #f1f2f6;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <button onclick="toggleDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer; color:white;">☰</button>
-    <span id="pageMainHeader" style="margin-right: 15px; font-weight:bold;">PANNEL</span>
-</header>
+<div class="container">
 
-<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
-<nav class="drawer" id="drawer">
-    <div class="drawer-header">تصفح السور والصفحات</div>
-    <div id="drawerLoader" class="drawer-loader"></div>
-    <ul class="drawer-menu" id="drawerDynamicMenu"></ul>
-</nav>
+    <div id="login-container" class="card">
+        <h2>إعدادات الربط بـ GitHub</h2>
+        <p style="font-size: 0.85rem; color: #666;">يتم حفظ هذه البيانات محلياً في جهازك تلقائياً.</p>
+        <div class="form-group">
+            <label>اسم المستخدم في GitHub (Username):</label>
+            <input type="text" id="git-user" placeholder="مثال: MyGithubUser">
+        </div>
+        <div class="form-group">
+            <label>اسم المستودع (Repository Name):</label>
+            <input type="text" id="git-repo" placeholder="مثال: QuranProject">
+        </div>
+        <div class="form-group">
+            <label>رمز الوصول الشخصي (Token):</label>
+            <input type="password" id="git-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxx">
+        </div>
+        <button class="btn" onclick="saveSettings()">اتصال وحفظ البيانات 🔐</button>
+    </div>
 
-<main style="padding: 20px;">
-    <h1 id="pageContentTitle">صفحة PANNEL</h1>
-    <p>هذه الصفحة تقوم بقراءة الترتيب والأسماء المخصصة من ملف order.json تلقائياً وبشكل محمي ضد التنظيف.</p>
-</main>
+    <div id="main-container">
+        <div class="header-bar">
+            <div>
+                <span id="repo-title" style="font-weight: bold; color: var(--primary-color);"></span>
+            </div>
+            <button class="btn btn-danger" onclick="logout()" style="padding: 5px 10px; font-size: 0.8rem;">تعديل الإعدادات / الخروج</button>
+        </div>
+
+        <div class="card" id="order-card">
+            <h2>ترتيب وظهور وتعديل أسماء الصفحات في الهيدر (order.json)</h2>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">قم بتفعيل ظهور الصفحة، ترتيبها بالأسهم، أو تعديل اسم العرض الظاهر للمستخدم، ثم اضغط على حفظ.</p>
+            <div id="order-loader" class="loader">جاري جلب ملف الترتيب...</div>
+            <ul id="order-list" class="order-list"></ul>
+            <button class="btn" style="margin-top: 15px; width: 100%;" onclick="saveOrderJson()">حفظ التعديلات والترتيب الحالي 💾</button>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; border: none; padding: 0;">صفحات الـ HTML للمشروع</h2>
+                <button class="btn" onclick="showCreateModal()">+ إنشاء صفحة جديدة</button>
+            </div>
+            
+            <div id="loader" class="loader">جاري جلب الملفات من GitHub...</div>
+            <ul id="files-list" class="file-list"></ul>
+        </div>
+    </div>
+
+    <div id="editor-container" class="card">
+        <div class="header-bar">
+            <h2 id="editing-filename" style="margin:0; border:none; padding:0;">تعديل الملف</h2>
+            <button class="btn btn-secondary" onclick="closeEditor()">إلغاء والعودة</button>
+        </div>
+
+        <div class="drawer-pos-selector">
+            <span style="font-weight: bold; font-size: 0.9rem;">مكان القائمة (Drawer):</span>
+            <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-weight:normal;">
+                <input type="radio" name="drawer-pos" value="right" checked> يمين (RTL)
+            </label>
+            <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-weight:normal;">
+                <input type="radio" name="drawer-pos" value="left"> يسار (LTR)
+            </label>
+            
+            <span style="font-weight: bold; font-size: 0.9rem; margin-right: 10px;">لون الهيدر:</span>
+            <input type="text" id="drawer-color-hex" value="#2c3e50" placeholder="#2c3e50" style="width: 85px; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; text-align: center; font-size: 0.85rem;">
+
+            <span style="font-weight: bold; font-size: 0.9rem; margin-right: 10px;">لون النص:</span>
+            <input type="text" id="drawer-text-hex" value="#ffffff" placeholder="#ffffff" style="width: 85px; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; text-align: center; font-size: 0.85rem;">
+        </div>
+
+        <div class="find-replace-bar">
+            <input type="text" id="find-input" placeholder="اكتب كلمة للبحث عنها...">
+            <input type="text" id="replace-input" placeholder="استبدال بـ...">
+            <button class="btn btn-dark btn-sm" onclick="findText()">بحث 🔍</button>
+            <button class="btn btn-dark btn-sm" onclick="replaceText(false)">استبدال 🔁</button>
+            <button class="btn btn-dark btn-sm" onclick="replaceText(true)">استبدال الكل 🔄</button>
+        </div>
+
+        <div class="editor-tools">
+            <button class="btn btn-secondary btn-sm" onclick="copyAllText()">نسخ الكود بالكامل 📋</button>
+            <button class="btn btn-danger btn-sm" onclick="clearAllText()">تفريغ المحرر 🗑️</button>
+        </div>
+
+        <div class="form-group">
+            <textarea id="code-editor" rows="25" placeholder="اكتب أو الصق كود الـ HTML هنا..."></textarea>
+        </div>
+        <button class="btn" style="width: 100%; padding: 12px;" onclick="saveFileContent()">حفظ التغييرات ونشرها على GitHub 🚀</button>
+    </div>
+
+</div>
 
 <script>
-    const username = "BLOXMAM";
-    const repo = "app_ddir";
-    const currentFileName = "PANNEL.html";
+    let GITHUB_USER = "";
+    let GITHUB_REPO = "";
+    let GITHUB_TOKEN = "";
+    
+    let currentFilePath = "";
+    let currentFileSha = "";
+    
+    let pagesOrder = []; 
+    let allHtmlFilesList = []; 
+    let orderFileSha = "";
 
-    function toggleDrawer() {
-        const drawer = document.getElementById("drawer");
-        const overlay = document.getElementById("drawerOverlay");
-        drawer.classList.toggle("open");
-        overlay.style.display = drawer.classList.contains("open") ? "block" : "none";
+    window.onload = function() {
+        checkAuth();
+    };
+
+    function checkAuth() {
+        GITHUB_USER = localStorage.getItem("git_user");
+        GITHUB_REPO = localStorage.getItem("git_repo");
+        GITHUB_TOKEN = localStorage.getItem("git_token");
+
+        if (GITHUB_USER && GITHUB_REPO && GITHUB_TOKEN) {
+            document.getElementById("login-container").style.display = "none";
+            document.getElementById("main-container").style.display = "block";
+            document.getElementById("repo-title").innerText = `مستودع: ${GITHUB_USER}/${GITHUB_REPO}`;
+            loadHtmlFiles();
+            loadOrderJson();
+        } else {
+            document.getElementById("login-container").style.display = "block";
+            document.getElementById("main-container").style.display = "none";
+            document.getElementById("editor-container").style.display = "none";
+        }
     }
 
-    function renderDrawerContent(orderedPages) {
-        const drawerMenu = document.getElementById("drawerDynamicMenu");
-        drawerMenu.innerHTML = "";
-        
-        // ميزة إضافية ذكية: تحديث اسم الهيدر والتيتل الحالي بناءً على الاسم المستعار في القائمة مسبقاً
-        const currentPageData = orderedPages.find(p => p.file === currentFileName);
-        if (currentPageData && currentPageData.title) {
-            document.getElementById("pageMainHeader").innerText = currentPageData.title;
-            document.getElementById("pageContentTitle").innerText = currentPageData.title;
-            document.title = currentPageData.title;
+    function saveSettings() {
+        const user = document.getElementById("git-user").value.trim();
+        const repo = document.getElementById("git-repo").value.trim();
+        const token = document.getElementById("git-token").value.trim();
+
+        if(!user || !repo || !token) {
+            alert("الرجاء ملء جميع الحقول المطلوبة للاتصال!");
+            return;
         }
-        
-        orderedPages.forEach(page => {
-            const li = document.createElement("li");
-            li.className = "drawer-item";
-            li.innerHTML = "<span>" + page.title + "</span><span>📖</span>";
-            
-            li.onclick = () => {
-                if (typeof Android !== "undefined" && Android.openLocalPage) {
-                    Android.openLocalPage(page.file);
+
+        localStorage.setItem("git_user", user);
+        localStorage.setItem("git_repo", repo);
+        localStorage.setItem("git_token", token);
+
+        showAndroidToast("تم حفظ اعدادات الاتصال بنجاح");
+        checkAuth();
+    }
+
+    function logout() {
+        if(confirm("هل تريد بالتأكيد تسجيل الخروج وتعديل بيانات الاتصال بالـ GitHub؟")) {
+            localStorage.clear();
+            checkAuth();
+        }
+    }
+
+    function showAndroidToast(message) {
+        if (typeof Android !== "undefined" && Android.callAndroidBlock) {
+            let cleanMsg = message.replace(/[\[\]\{\}\(\)]/g, "").trim();
+            Android.callAndroidBlock(cleanMsg);
+        } else {
+            console.log("Toast: " + message);
+        }
+    }
+
+    function closeEditor() {
+        document.getElementById("editor-container").style.display = "none";
+        document.getElementById("main-container").style.display = "block";
+    }
+
+    function copyFilePath(fileName) {
+        const fullPath = `${fileName}`;
+        const tempInput = document.createElement("input");
+        tempInput.value = fullPath;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        showAndroidToast("تم نسخ مسار الصفحة بنجاح");
+    }
+
+    function copyAllText() {
+        const editor = document.getElementById("code-editor");
+        editor.select();
+        editor.setSelectionRange(0, 99999);
+        try {
+            document.execCommand("copy");
+            showAndroidToast("تم نسخ الكود بالكامل الى الحافظة");
+        } catch (err) {
+            alert("عذراً، لم نتمكن من النسخ التلقائي.");
+        }
+    }
+
+    function clearAllText() {
+        if(confirm("هل أنت متأكد من رغبتك في تفريغ المحرر بالكامل؟")) {
+            document.getElementById("code-editor").value = "";
+        }
+    }
+
+    function findText() {
+        const editor = document.getElementById("code-editor");
+        const findVal = document.getElementById("find-input").value;
+        if (!findVal) {
+            alert("يرجى كتابة كلمة للبحث عنها أولاً!");
+            return;
+        }
+        const text = editor.value;
+        const index = text.indexOf(findVal, editor.selectionEnd);
+        if (index !== -1) {
+            editor.focus();
+            editor.setSelectionRange(index, index + findVal.length);
+            const row = text.substr(0, index).split("\n").length;
+            editor.scrollTop = (row - 5) * 20; 
+        } else {
+            const retryIndex = text.indexOf(findVal);
+            if (retryIndex !== -1) {
+                editor.focus();
+                editor.setSelectionRange(retryIndex, retryIndex + findVal.length);
+            } else {
+                alert("لم يتم العثور على الكلمة المطلوبة!");
+            }
+        }
+    }
+
+    function replaceText(replaceAll = false) {
+        const editor = document.getElementById("code-editor");
+        const findVal = document.getElementById("find-input").value;
+        const replaceVal = document.getElementById("replace-input").value;
+
+        if (!findVal) {
+            alert("يرجى تحديد النص المراد استبداله أولاً!");
+            return;
+        }
+
+        const text = editor.value;
+
+        if (replaceAll) {
+            const escapedFind = findVal.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const newText = text.replace(new RegExp(escapedFind, 'g'), replaceVal);
+            editor.value = newText;
+            showAndroidToast("تم استبدال جميع المطابقات بنجاح");
+        } else {
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selectedText = text.substring(start, end);
+
+            if (selectedText === findVal) {
+                editor.setRangeText(replaceVal, start, end, 'select');
+                showAndroidToast("تم استبدال النص المحدد");
+            } else {
+                const index = text.indexOf(findVal, start);
+                if (index !== -1) {
+                    editor.setSelectionRange(index, index + findVal.length);
+                    editor.setRangeText(replaceVal, index, index + findVal.length, 'select');
+                    showAndroidToast("تم تحديد واستبدال اول تطابق");
                 } else {
-                    window.location.href = page.file;
+                    findText();
                 }
+            }
+        }
+    }
+
+    function updateVersionTxtOnGithub() {
+        const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/version.txt`;
+
+        fetch(url, {
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Accept": "application/vnd.github.v3+json"
+            }
+        })
+        .then(response => {
+            if (response.status === 404) {
+                return { isNew: true };
+            }
+            if (!response.ok) throw new Error("فشل قراءة ملف الإصدار.");
+            return response.json();
+        })
+        .then(data => {
+            let currentVersion = 0;
+            let fileSha = "";
+
+            if (!data.isNew) {
+                fileSha = data.sha;
+                const cleanBase64 = data.content.replace(/\s/g, '');
+                const decodedContent = decodeURIComponent(escape(atob(cleanBase64)));
+                currentVersion = parseInt(decodedContent.trim()) || 0;
+            }
+
+            const newVersion = currentVersion + 1;
+            const encodedContent = btoa(unescape(encodeURIComponent(String(newVersion))));
+
+            const bodyData = {
+                message: `تحديث رقم إصدار المشروع التلقائي إلى: ${newVersion}`,
+                content: encodedContent
             };
-            drawerMenu.appendChild(li);
+            if (fileSha) bodyData.sha = fileSha;
+
+            return fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `token ${GITHUB_TOKEN}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/vnd.github.v3+json"
+                },
+                body: JSON.stringify(bodyData)
+            });
+        })
+        .then(res => {
+            if(res && res.ok) {
+                console.log("تم تحديث ملف version.txt بنجاح");
+            }
+        })
+        .catch(err => {
+            console.log("خطأ أثناء تحديث ملف version.txt: " + err.message);
         });
     }
 
-    async function initDrawer() {
-        const loader = document.getElementById("drawerLoader");
-        let loadedSuccessfully = false;
-        try {
-            // 1. محاولة القراءة الحصينة مباشرة من نظام ملفات الأندرويد
-            if (typeof Android !== "undefined" && Android.readLocalFile) {
-                const localData = Android.readLocalFile("order.json");
-                if (localData && localData.trim() !== "") {
-                    const orderedPages = JSON.parse(localData);
-                    renderDrawerContent(orderedPages);
-                    loadedSuccessfully = true;
-                }
+    function loadOrderJson() {
+        const orderLoader = document.getElementById("order-loader");
+        const orderListContainer = document.getElementById("order-list");
+        orderLoader.style.display = "block";
+        orderListContainer.innerHTML = "";
+
+        const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/order.json`;
+
+        fetch(url, {
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Accept": "application/vnd.github.v3+json"
             }
+        })
+        .then(response => {
+            if (response.status === 404) {
+                return { isNew: true };
+            }
+            if (!response.ok) throw new Error("فشل جلب ملف الترتيب.");
+            return response.json();
+        })
+        .then(data => {
+            orderLoader.style.display = "none";
+            if (data.isNew) {
+                pagesOrder = [];
+                orderFileSha = "";
+                renderOrderList();
+                return;
+            }
+
+            orderFileSha = data.sha;
+            const cleanBase64 = data.content.replace(/\s/g, '');
+            const decodedContent = decodeURIComponent(escape(atob(cleanBase64)));
+            try {
+                const parsed = JSON.parse(decodedContent);
+                pagesOrder = parsed.map(item => {
+                    if (typeof item === 'string') {
+                        return { file: item, title: item.replace(".html", "") };
+                    }
+                    return item;
+                });
+            } catch(e) {
+                pagesOrder = [];
+            }
+            renderOrderList();
+        })
+        .catch(err => {
+            orderLoader.style.display = "none";
+            console.log("خطأ في جلب ملف الترتيب: " + err.message);
+        });
+    }
+
+    function renderOrderList() {
+        const orderListContainer = document.getElementById("order-list");
+        orderListContainer.innerHTML = "";
+
+        const combinedList = [...pagesOrder];
+        allHtmlFilesList.forEach(file => {
+            const exists = combinedList.some(item => item.file === file.name);
+            if (!exists) {
+                combinedList.push({ file: file.name, title: file.name.replace(".html", "") });
+            }
+        });
+
+        if (combinedList.length === 0) {
+            orderListContainer.innerHTML = "<p style='text-align:center;color:#7f8c8d;font-size:0.9rem;'>لا توجد صفحات HTML حالياً لعرضها وترتيبها.</p>";
+            return;
+        }
+
+        combinedList.forEach((item, index) => {
+            const isShown = pagesOrder.some(p => p.file === item.file);
+            const orderIdx = pagesOrder.findIndex(p => p.file === item.file);
+            const currentTitle = item.title || item.file.replace(".html", "");
+
+            const li = document.createElement("li");
+            li.className = "order-item";
+            li.style.opacity = isShown ? "1" : "0.55";
             
-            // 2. إذا لم يكن الجسر متاحاً، نحاول fetch محلي كخيار ثانٍ
-            if (!loadedSuccessfully) {
-                const res = await fetch(`order.json`);
-                if (res.ok) {
-                    const orderedPages = await res.json();
-                    renderDrawerContent(orderedPages);
-                    loadedSuccessfully = true;
-                } else { throw new Error(); }
-            }
-        } catch(e) {
-            // 3. الحل الاحتياطي الأخير أونلاين من السيرفر
-            if (!loadedSuccessfully) {
-                try {
-                    const resAlt = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/order.json`);
-                    const dataAlt = await resAlt.json();
-                    const decodedContent = decodeURIComponent(escape(atob(dataAlt.content.replace(/\s/g, ""))));
-                    renderDrawerContent(JSON.parse(decodedContent));
-                } catch(err) { console.log("خطأ في جلب الهيدر أوفلاين وأونلاين"); }
-            }
-        } finally {
-            loader.style.display = "none";
+            li.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 4px; flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span style="font-weight:bold; color: ${isShown ? '#2c3e50' : '#7f8c8d'};">${item.file}</span>
+                        <input type="text" class="title-input" value="${currentTitle}" 
+                            placeholder="الاسم الظاهر" 
+                            onchange="updatePageTitle('${item.file}', this.value)"
+                            ${!isShown ? 'disabled' : ''}>
+                    </div>
+                    <span style="font-size:0.75rem; color:#888;">${isShown ? 'الترتيب: ' + (orderIdx + 1) : 'مخفي من الهيدر'}</span>
+                </div>
+                <div class="order-controls">
+                    <div class="switch-container">
+                        <span>إظهار:</span>
+                        <label class="switch">
+                            <input type="checkbox" ${isShown ? 'checked' : ''} onchange="toggleHeaderVisibility('${item.file}', '${currentTitle}', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    ${isShown ? `
+                        <button class="btn-arrow" onclick="moveItem(${orderIdx}, -1)">▲</button>
+                        <button class="btn-arrow" onclick="moveItem(${orderIdx}, 1)">▼</button>
+                    ` : ''}
+                </div>
+            `;
+            orderListContainer.appendChild(li);
+        });
+    }
+
+    function updatePageTitle(fileName, newTitle) {
+        const item = pagesOrder.find(p => p.file === fileName);
+        if (item) {
+            item.title = newTitle.trim() || fileName.replace(".html", "");
         }
     }
-    initDrawer();
+
+    function toggleHeaderVisibility(fileName, currentTitle, isChecked) {
+        if (isChecked) {
+            if (!pagesOrder.some(p => p.file === fileName)) {
+                pagesOrder.push({ file: fileName, title: currentTitle });
+            }
+        } else {
+            pagesOrder = pagesOrder.filter(p => p.file !== fileName);
+        }
+        renderOrderList();
+    }
+
+    function moveItem(index, direction) {
+        const targetIndex = index + direction;
+        if (targetIndex < 0 || targetIndex >= pagesOrder.length) return;
+
+        const temp = pagesOrder[index];
+        pagesOrder[index] = pagesOrder[targetIndex];
+        pagesOrder[targetIndex] = temp;
+
+        renderOrderList();
+    }
+
+    function saveOrderJson() {
+        const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/order.json`;
+        const jsonContent = JSON.stringify(pagesOrder, null, 2);
+        const encodedContent = btoa(unescape(encodeURIComponent(jsonContent)));
+
+        const bodyData = {
+            message: "تحديث ترتيب وظهور وأسماء الصفحات في الهيدر order.json",
+            content: encodedContent
+        };
+
+        if (orderFileSha) {
+            bodyData.sha = orderFileSha;
+        }
+
+        fetch(url, {
+            method: "PUT",
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Content-Type": "application/json",
+                "Accept": "application/vnd.github.v3+json"
+            },
+            body: JSON.stringify(bodyData)
+        })
+        .then(response => {
+            if(!response.ok) throw new Error("فشل حفظ ملف الترتيب.");
+            return response.json();
+        })
+        .then(data => {
+            orderFileSha = data.content.sha;
+            showAndroidToast("تم تحديث وتخصيص الصفحات بنجاح");
+            updateVersionTxtOnGithub();
+            loadOrderJson();
+        })
+        .catch(err => {
+            alert("خطأ أثناء حفظ الترتيب: " + err.message);
+        });
+    }
+
+    function loadHtmlFiles() {
+        const loader = document.getElementById("loader");
+        const listContainer = document.getElementById("files-list");
+        
+        loader.style.display = "block";
+        listContainer.innerHTML = "";
+
+        const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
+
+        fetch(url, {
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Accept": "application/vnd.github.v3+json"
+            }
+        })
+        .then(response => {
+            if(!response.ok) throw new Error("فشل جلب الملفات. تأكد من صحة التوكن واسم المستودع.");
+            return response.json();
+        })
+        .then(data => {
+            loader.style.display = "none";
+            const htmlFiles = data.filter(file => file.type === "file" && file.name.toLowerCase().endsWith(".html"));
+            allHtmlFilesList = htmlFiles;
+            
+            if(htmlFiles.length === 0) {
+                listContainer.innerHTML = "<p style='text-align:center;color:#7f8c8d;'>لا توجد صفحات HTML في هذا المستودع حالياً.</p>";
+                return;
+            }
+
+            renderOrderList();
+
+            htmlFiles.forEach(file => {
+                const li = document.createElement("li");
+                li.className = "file-item";
+                li.innerHTML = `
+                    <span class="file-name" onclick="editFile('${file.path}', '${file.sha}')">${file.name}</span>
+                    <div class="actions">
+                        <button class="btn btn-dark" style="padding: 4px 8px; font-size: 0.8rem;" onclick="copyFilePath('${file.name}')">نسخ المسار</button>
+                        <button class="btn" style="padding: 4px 8px; font-size: 0.8rem;" onclick="editFile('${file.path}', '${file.sha}')">تعديل الكود</button>
+                        <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.8rem;" onclick="deleteFile('${file.path}', '${file.sha}')">حذف</button>
+                    </div>
+                `;
+                listContainer.appendChild(li);
+            });
+        })
+        .catch(err => {
+            loader.style.display = "none";
+            alert(err.message);
+        });
+    }
+
+    function editFile(path, sha) {
+        currentFilePath = path;
+        currentFileSha = sha;
+        
+        document.getElementById("main-container").style.display = "none";
+        document.getElementById("editor-container").style.display = "block";
+        document.getElementById("editing-filename").innerText = `تعديل ملف: ${path}`;
+        document.getElementById("code-editor").value = "جاري تحميل محتوى الصفحة...";
+
+        const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
+
+        fetch(url, {
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Accept": "application/vnd.github.v3+json"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const cleanBase64 = data.content.replace(/\s/g, '');
+            let decodedContent = decodeURIComponent(escape(atob(cleanBase64)));
+            
+            if(decodedContent.includes('right: -280px;') || decodedContent.includes('right: 0;')) {
+                document.querySelector('input[name="drawer-pos"][value="right"]').checked = true;
+            } else if(decodedContent.includes('left: -280px;') || decodedContent.includes('left: 0;')) {
+                document.querySelector('input[name="drawer-pos"][value="left"]').checked = true;
+            }
+
+            const headerColorMatch = decodedContent.match(/background:\s*(#[a-fA-F0-9]{3,6});\s*\/\*\s*drawer-bg-color\s*\*\//);
+            if(headerColorMatch && headerColorMatch[1]) {
+                document.getElementById("drawer-color-hex").value = headerColorMatch[1];
+            } else {
+                document.getElementById("drawer-color-hex").value = "#2c3e50";
+            }
+
+            const textColorMatch = decodedContent.match(/color:\s*(#[a-fA-F0-9]{3,6});\s*\/\*\s*drawer-text-color\s*\*\//);
+            if(textColorMatch && textColorMatch[1]) {
+                document.getElementById("drawer-text-hex").value = textColorMatch[1];
+            } else {
+                document.getElementById("drawer-text-hex").value = "#ffffff";
+            }
+
+            decodedContent = decodedContent.replace(/<style id="admin-styles">[\s\S]*?<\/style>/g, "");
+            decodedContent = decodedContent.replace(/<!-- START ADMIN DRAWER -->[\s\S]*?<!-- END ADMIN DRAWER -->/g, "");
+            decodedContent = decodedContent.replace(/<script id="admin-scripts">[\s\S]*?<\/script>/g, "");
+            
+            document.getElementById("code-editor").value = decodedContent;
+        })
+        .catch(err => {
+            alert("خطأ أثناء جلب محتوى الملف: " + err.message);
+            closeEditor();
+        });
+    }
+
+    function saveFileContent() {
+        let userContent = document.getElementById("code-editor").value;
+        const pageName = currentFilePath.replace(".html", "");
+
+        const selectedPos = document.querySelector('input[name="drawer-pos"]:checked').value;
+        const isRight = (selectedPos === "right");
+        
+        let headerColor = document.getElementById("drawer-color-hex").value.trim();
+        if(!headerColor.startsWith('#')) headerColor = '#' + headerColor;
+
+        let textColor = document.getElementById("drawer-text-hex").value.trim();
+        if(!textColor.startsWith('#')) textColor = '#' + textColor;
+
+        userContent = userContent.replace(/<style id="admin-styles">[\s\S]*?<\/style>/g, "");
+        userContent = userContent.replace(/<!-- START ADMIN DRAWER -->[\s\S]*?<!-- END ADMIN DRAWER -->/g, "");
+        userContent = userContent.replace(/<script id="admin-scripts">[\s\S]*?<\/script>/g, "");
+
+        const adminStyles = '<style id="admin-styles">\n' +
+'        * {\n' +
+'            -webkit-user-select: none !important;\n' +
+'            -moz-user-select: none !important;\n' +
+'            -ms-user-select: none !important;\n' +
+'            user-select: none !important;\n' +
+'            -webkit-touch-callout: none !important;\n' +
+'            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;\n' +
+'        }\n' +
+'        body { margin: 0 !important; padding: 0 !important; }\n' +
+'        header { background: ' + headerColor + '; /* drawer-bg-color */ padding: 15px; color: ' + textColor + '; /* drawer-text-color */ display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; direction: ' + (isRight ? 'rtl' : 'ltr') + ' !important; }\n' +
+'        .header-brand { display: flex; align-items: center; gap: 15px; width: 100%; justify-content: space-between; direction: ' + (isRight ? 'rtl' : 'ltr') + '; text-align: ' + (isRight ? 'right' : 'left') + '; }\n' +
+'        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }\n' +
+'        .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: #ffffff; z-index: 1002; transition: all 0.3s ease; display: flex; flex-direction: column; ' + (isRight ? 'right: -280px;' : 'left: -280px;') + ' }\n' +
+'        .drawer.open { ' + (isRight ? 'right: 0;' : 'left: 0;') + ' }\n' +
+'        .drawer-header { background: ' + headerColor + '; /* drawer-bg-color */ color: ' + textColor + '; /* drawer-text-color */ padding: 20px; font-weight: bold; }\n' +
+'        .drawer-menu { list-style: none; padding: 10px 0; margin: 0; }\n' +
+'        .drawer-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #333333; }\n' +
+'        .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid ' + headerColor + '; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }\n' +
+'        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }\n' +
+'    </style>';
+
+        const adminDrawerHtml = '<!-- START ADMIN DRAWER -->\n' +
+'<header>\n' +
+'    <div class="header-brand">\n' +
+'        <button onclick="toggleDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer; color: ' + textColor + '; padding:0; display:flex; align-items:center; order: 1;">☰</button>\n' +
+'        <span id="pageMainHeader" style="font-weight:bold; order: 2;">' + pageName + '</span>\n' +
+'    </div>\n' +
+</header>\n' +
+'<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>\n' +
+'<nav class="drawer" id="drawer">\n' +
+'    <div class="drawer-header">تصفح السور والصفحات</div>\n' +
+'    <div id="drawerLoader" class="drawer-loader"></div>\n' +
+'    <ul class="drawer-menu" id="drawerDynamicMenu"></ul>\n' +
+'</nav>\n' +
+'<!-- END ADMIN DRAWER -->';
+
+        const adminScripts = '<script id="admin-scripts">\n' +
+'    const username = "' + GITHUB_USER + '";\n' +
+'    const repo = "' + GITHUB_REPO + '";\n' +
+'    const currentFileName = "' + currentFilePath + '";\n' +
+'\n' +
+'    function toggleDrawer() {\n' +
+'        const drawer = document.getElementById("drawer");\n' +
+'        const overlay = document.getElementById("drawerOverlay");\n' +
+'        drawer.classList.toggle("open");\n' +
+'        overlay.style.display = drawer.classList.contains("open") ? "block" : "none";\n' +
+'    }\n' +
+'\n' +
+'    function renderDrawerContent(orderedPages) {\n' +
+'        const drawerMenu = document.getElementById("drawerDynamicMenu");\n' +
+'        drawerMenu.innerHTML = "";\n' +
+'        const currentPageData = orderedPages.find(p => p.file === currentFileName);\n' +
+'        if (currentPageData && currentPageData.title) {\n' +
+'            document.getElementById("pageMainHeader").innerText = currentPageData.title;\n' +
+'            if(document.getElementById("pageContentTitle")) document.getElementById("pageContentTitle").innerText = currentPageData.title;\n' +
+'            document.title = currentPageData.title;\n' +
+'        }\n' +
+'        orderedPages.forEach(page => {\n' +
+'            const li = document.createElement("li");\n' +
+'            li.className = "drawer-item";\n' +
+'            li.innerHTML = "<span>" + page.title + "</span><span>📖</span>";\n' +
+'            li.onclick = () => {\n' +
+'                if (typeof Android !== "undefined" && Android.openLocalPage) {\n' +
+'                    Android.openLocalPage(page.file);\n' +
+'                } else {\n' +
+'                    window.location.href = page.file;\n' +
+'                }\n' +
+'            };\n' +
+'            drawerMenu.appendChild(li);\n' +
+'        });\n' +
+'    }\n' +
+'\n' +
+'    async function initDrawer() {\n' +
+'        const loader = document.getElementById("drawerLoader");\n' +
+'        let loadedSuccessfully = false;\n' +
+'        try {\n' +
+'            if (typeof Android !== "undefined" && Android.readLocalFile) {\n' +
+'                const localData = Android.readLocalFile("order.json");\n' +
+'                if (localData && localData.trim() !== "") {\n' +
+'                    const orderedPages = JSON.parse(localData);\n' +
+'                    renderDrawerContent(orderedPages);\n' +
+'                    loadedSuccessfully = true;\n' +
+'                }\n' +
+'            }\n' +
+'            if (!loadedSuccessfully) {\n' +
+'                const res = await fetch(`order.json`);\n' +
+'                if (res.ok) {\n' +
+'                    const orderedPages = await res.json();\n' +
+'                    renderDrawerContent(orderedPages);\n' +
+'                    loadedSuccessfully = true;\n' +
+'                } else { throw new Error(); }\n' +
+'            }\n' +
+'        } catch(e) {\n' +
+'            if (!loadedSuccessfully) {\n' +
+'                try {\n' +
+'                    const resAlt = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/order.json`);\n' +
+'                    const dataAlt = await resAlt.json();\n' +
+'                    const decodedContent = decodeURIComponent(escape(atob(dataAlt.content.replace(/\\s/g, ""))));\n' +
+'                    renderDrawerContent(JSON.parse(decodedContent));\n' +
+'                } catch(err) { console.log("خطأ في جلب الهيدر"); }\n' +
+'            }\n' +
+'        } finally {\n' +
+'            if(loader) loader.style.display = "none";\n' +
+'        }\n' +
+'    }\n' +
+'    initDrawer();\n' +
+'<\/script>';
+
+        if (userContent.includes("</head>")) {
+            userContent = userContent.replace("</head>", adminStyles + "\n</head>");
+        } else {
+            userContent = adminStyles + "\n" + userContent;
+        }
+
+        if (userContent.includes("<body>")) {
+            userContent = userContent.replace("<body>", "<body>\n" + adminDrawerHtml);
+        } else if (userContent.match(/<body[^>]*>/)) {
+            userContent = userContent.replace(/<body([^>]*)>/, "<body$1>\n" + adminDrawerHtml);
+        }
+
+        if (userContent.includes("</body>")) {
+            userContent = userContent.replace("</body>", adminScripts + "\n</body>");
+        } else {
+            userContent = userContent + "\n" + adminScripts;
+        }
+
+        const encodedContent = btoa(unescape(encodeURIComponent(userContent)));
+        const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${currentFilePath}`;
+
+        const bodyData = {
+            message: `تحديث صفحة ${currentFilePath} وضبط اتجاه ولون هيدر ونص القائمة المحقونة وعرضها الكامل ومنع التحديد الشامل`,
+            content: encodedContent,
+            sha: currentFileSha
+        };
+
+        fetch(url, {
+            method: "PUT",
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Content-Type": "application/json",
+                "Accept": "application/vnd.github.v3+json"
+            },
+            body: JSON.stringify(bodyData)
+        })
+        .then(response => {
+            if(!response.ok) throw new Error("فشل الحفظ على GitHub.");
+            return response.json();
+        })
+        .then(data => {
+            currentFileSha = data.content.sha;
+            showAndroidToast("تم الحفظ بنجاح وتوسيع الهيدر ليأخذ كامل العرض");
+            updateVersionTxtOnGithub();
+            closeEditor();
+            loadHtmlFiles();
+        })
+        .catch(err => {
+            alert("خطأ أثناء حفظ الملف: " + err.message);
+        });
+    }
+
+    function deleteFile(path, sha) {
+        if (!confirm(`هل أنت متأكد تماماً من رغبتك في حذف الصفحة "${path}" بشكل نهائي؟`)) {
+            return;
+        }
+
+        const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
+        const bodyData = {
+            message: `حذف صفحة ${path} بواسطة لوحة التحكم`,
+            sha: sha
+        };
+
+        fetch(url, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Content-Type": "application/json",
+                "Accept": "application/vnd.github.v3+json"
+            },
+            body: JSON.stringify(bodyData)
+        })
+        .then(response => {
+            if(!response.ok) throw new Error("فشل حذف الصفحة من GitHub.");
+            return response.json();
+        })
+        .then(data => {
+            pagesOrder = pagesOrder.filter(p => p.file !== path);
+            saveOrderJson();
+            showAndroidToast("تم الحذف بنجاح");
+            updateVersionTxtOnGithub();
+            loadHtmlFiles();
+        })
+        .catch(err => {
+            alert("خطأ أثناء حذف الملف: " + err.message);
+        });
+    }
+
+    function showCreateModal() {
+        let pageName = prompt("أدخل اسم الصفحة الجديدة (دون كتابة .html):");
+        if (!pageName) return;
+
+        pageName = pageName.trim();
+        pageName = pageName.replace(/\.[^/.]+$/, ""); 
+        
+        if (pageName === "") {
+            alert("الاسم غير صالح!");
+            return;
+        }
+
+        const finalFileName = pageName + ".html";
+        
+        const defaultHtml = '<!DOCTYPE html>\n' +
+'<html lang="ar" dir="rtl">\n' +
+'<head>\n' +
+'    <meta charset="UTF-8">\n' +
+'    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+'    <title>' + pageName + '</title>\n' +
+'    <style>\n' +
+'        * {\n' +
+'            -webkit-user-select: none !important;\n' +
+'            -moz-user-select: none !important;\n' +
+'            -ms-user-select: none !important;\n' +
+'            user-select: none !important;\n' +
+'            -webkit-touch-callout: none !important;\n' +
+'            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;\n' +
+'        }\n' +
+'    </style>\n' +
+'</head>\n' +
+'<body>\n' +
+'\n' +
+'<main style="padding: 20px;">\n' +
+'    <h1 id="pageContentTitle">صفحة ' + pageName + '</h1>\n' +
+'    <p>محتوى الصفحة الافتراضي المخصص لك.</p>\n' +
+'</main>\n' +
+'\n' +
+'</body>\n' +
+'</html>';
+
+        currentFilePath = finalFileName;
+        currentFileSha = ""; 
+        
+        document.getElementById("code-editor").value = defaultHtml;
+        saveFileContent();
+    }
 </script>
 </body>
 </html>
