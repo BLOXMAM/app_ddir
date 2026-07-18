@@ -913,6 +913,7 @@
         userContent = userContent.replace(/<!-- START ADMIN DRAWER -->[\s\S]*?<!-- END ADMIN DRAWER -->/g, "");
         userContent = userContent.replace(/<script id="admin-scripts">[\s\S]*?<\/script>/g, "");
 
+        // كود الـ Style المحقون مع إضافة ميزة منع التظليل الشامل (*) للصفحة المنتجة تلقائياً
         const adminStyles = '<style id="admin-styles">\n' +
 '        * {\n' +
 '            -webkit-user-select: none !important;\n' +
@@ -923,7 +924,7 @@
 '            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;\n' +
 '        }\n' +
 '        body { margin: 0 !important; padding: 0 !important; }\n' +
-'        header { background: ' + headerColor + '; /* drawer-bg-color */ padding: 15px; color: ' + textColor + '; /* drawer-text-color */ display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; direction: ' + (isRight ? 'rtl' : 'ltr') + ' !important; }\n' +
+'        header { background: ' + headerColor + '; /* drawer-bg-color */ padding: 15px; color: ' + textColor + '; /* drawer-text-color */ display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; }\n' +
 '        .header-brand { display: flex; align-items: center; gap: 15px; width: 100%; justify-content: space-between; direction: ' + (isRight ? 'rtl' : 'ltr') + '; text-align: ' + (isRight ? 'right' : 'left') + '; }\n' +
 '        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }\n' +
 '        .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: #ffffff; z-index: 1002; transition: all 0.3s ease; display: flex; flex-direction: column; ' + (isRight ? 'right: -280px;' : 'left: -280px;') + ' }\n' +
@@ -938,10 +939,10 @@
         const adminDrawerHtml = '<!-- START ADMIN DRAWER -->\n' +
 '<header>\n' +
 '    <div class="header-brand">\n' +
-'        <button onclick="toggleDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer; color: ' + textColor + '; padding:0; display:flex; align-items:center; order: 1;">☰</button>\n' +
-'        <span id="pageMainHeader" style="font-weight:bold; order: 2;">' + pageName + '</span>\n' +
+'        <button onclick="toggleDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer; color: ' + textColor + '; padding:0; display:flex; align-items:center; order: ' + (isRight ? '1' : '2') + ';">☰</button>\n' +
+'        <span id="pageMainHeader" style="font-weight:bold; order: ' + (isRight ? '2' : '1') + ';">' + pageName + '</span>\n' +
 '    </div>\n' +
-</header>\n' +
+'</header>\n' +
 '<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>\n' +
 '<nav class="drawer" id="drawer">\n' +
 '    <div class="drawer-header">تصفح السور والصفحات</div>\n' +
@@ -1132,12 +1133,10 @@
 '    <title>' + pageName + '</title>\n' +
 '    <style>\n' +
 '        * {\n' +
+'            user-select: none !important;\n' +
 '            -webkit-user-select: none !important;\n' +
 '            -moz-user-select: none !important;\n' +
 '            -ms-user-select: none !important;\n' +
-'            user-select: none !important;\n' +
-'            -webkit-touch-callout: none !important;\n' +
-'            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;\n' +
 '        }\n' +
 '    </style>\n' +
 '</head>\n' +
