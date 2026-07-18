@@ -791,7 +791,7 @@
         })
         .then(data => {
             orderFileSha = data.content.sha;
-            showAndroidToast("تم تحديث وتخصيص الصفحات بنجاح");
+            showAndroidToast("تم تحديث وتخصيص الصفحات بنجاح سيظهر التعديل بعد دقيقة إلى خمس");
             updateVersionTxtOnGithub();
             loadOrderJson();
         })
@@ -934,7 +934,7 @@
 '            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;\n' +
 '        }\n' +
 '        body { margin: 0 !important; padding: 0 !important; }\n' +
-'        header { background: ' + headerColor + '; /* drawer-bg-color */ padding: 12px 15px; color: ' + textColor + '; /* drawer-text-color */ display: flex; align-items: center; justify-content: flex-start; width: 100%; box-sizing: border-box; direction: ' + (isRight ? 'rtl' : 'ltr') + '; gap: 15px; }\n' +
+'        header { background: ' + headerColor + '; /* drawer-bg-color */ padding: 16px 15px; color: ' + textColor + '; /* drawer-text-color */ display: flex; align-items: center; justify-content: flex-start; width: 100%; box-sizing: border-box; direction: ' + (isRight ? 'rtl' : 'ltr') + '; gap: 15px; }\n' +
 '        .header-brand { display: flex; align-items: center; gap: 15px; width: auto; text-align: ' + (isRight ? 'right' : 'left') + '; }\n' +
 '        \n' +
 '        .menu-btn-container {\n' +
@@ -975,7 +975,7 @@
 '        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }\n' +
 '        .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: #ffffff; z-index: 1002; transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); display: flex; flex-direction: column; ' + (isRight ? 'right: -280px;' : 'left: -280px;') + ' }\n' +
 '        .drawer.open { ' + (isRight ? 'right: 0;' : 'left: 0;') + ' }\n' +
-'        .drawer-header { background: ' + headerColor + '; /* drawer-bg-color */ color: ' + textColor + '; /* drawer-text-color */ padding: 20px; font-weight: bold; text-align: ' + (isRight ? 'right' : 'left') + '; }\n' +
+'        .drawer-header { background: ' + headerColor + '; /* drawer-bg-color */ color: ' + textColor + '; /* drawer-text-color */ padding: 12px 20px; font-weight: bold; text-align: ' + (isRight ? 'right' : 'left') + '; }\n' +
 '        .drawer-menu-container { flex: 1; overflow-y: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }\n' +
 '        .drawer-menu-container::-webkit-scrollbar { display: none; }\n' +
 '        .drawer-menu { list-style: none; padding: 10px 0; margin: 0; direction: ' + (isRight ? 'rtl' : 'ltr') + '; }\n' +
@@ -997,7 +997,7 @@
 '</header>\n' +
 '<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>\n' +
 '<nav class="drawer" id="drawer">\n' +
-'    <div class="drawer-header">تصفح السور والصفحات</div>\n' +
+'    <div class="drawer-header">' + pageName + '</div>\n' +
 '    <div id="drawerLoader" class="drawer-loader"></div>\n' +
 '    <div class="drawer-menu-container">\n' +
 '        <ul class="drawer-menu" id="drawerDynamicMenu"></ul>\n' +
@@ -1038,7 +1038,7 @@
 '        orderedPages.forEach(page => {\n' +
 '            const li = document.createElement("li");\n' +
 '            li.className = "drawer-item";\n' +
-'            li.innerHTML = "<span>" + page.title + "</span><span>📖</span>";\n' +
+'            li.innerHTML = "<span>" + page.title + "</span>";\n' +
 '            li.onclick = () => {\n' +
 '                if (typeof Android !== "undefined" && Android.openLocalPage) {\n' +
 '                    Android.openLocalPage(page.file);\n' +
@@ -1128,7 +1128,7 @@
         })
         .then(data => {
             currentFileSha = data.content.sha;
-            showAndroidToast("تم حفظ التعديلات الجديدة بنجاح");
+            showAndroidToast("تم حفظ التعديلات الجديدة بنجاح ستظهر التعديلات بعد دقيقة إلى خمس ");
             updateVersionTxtOnGithub();
             closeEditor();
             loadHtmlFiles();
@@ -1165,7 +1165,7 @@
         .then(data => {
             pagesOrder = pagesOrder.filter(p => p.file !== path);
             saveOrderJson();
-            showAndroidToast("تم الحذف بنجاح");
+            showAndroidToast("تم الحذف بنجاح ستختفي بعد دقيقة إلى خمس");
             updateVersionTxtOnGithub();
             loadHtmlFiles();
         })
@@ -1175,7 +1175,7 @@
     }
 
     function showCreateModal() {
-        let pageName = prompt("أدخل اسم الصفحة الجديدة (دون كتابة .html):");
+        let pageName = prompt("أدخل اسم الصفحة الجديدة:");
         if (!pageName) return;
 
         pageName = pageName.trim();
