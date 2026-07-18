@@ -302,47 +302,8 @@
             flex-wrap: wrap;
         }
     </style>
-<style id="admin-styles">
-        * {
-            -webkit-user-select: none !important;
-            -moz-user-select: none !important;
-            -ms-user-select: none !important;
-            user-select: none !important;
-            -webkit-touch-callout: none !important;
-            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
-        }
-        body { margin: 0 !important; padding: 0 !important; }
-        header { background: #2c3e50; /* drawer-bg-color */ padding: 15px; color: #ffffff; /* drawer-text-color */ display: flex; align-items: center; justify-content: flex-start; width: 100%; box-sizing: border-box; direction: rtl; gap: 15px; }
-        .header-brand { display: flex; align-items: center; gap: 15px; width: auto; text-align: right; }
-        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }
-        .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: #ffffff; z-index: 1002; transition: all 0.3s ease; display: flex; flex-direction: column; right: -280px; }
-        .drawer.open { right: 0; }
-        .drawer-header { background: #2c3e50; /* drawer-bg-color */ color: #ffffff; /* drawer-text-color */ padding: 20px; font-weight: bold; text-align: right; }
-        .drawer-menu-container { flex: 1; overflow-y: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
-        .drawer-menu-container::-webkit-scrollbar { display: none; }
-        .drawer-menu { list-style: none; padding: 10px 0; margin: 0; direction: rtl; }
-        .drawer-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #333333; transition: all 0.2s ease; outline: none; -webkit-tap-highlight-color: transparent; }
-        .drawer-item:hover { background-color: #f1f2f6; transform: translateX(-4px); color: #2c3e50; }
-        .drawer-item:active { background-color: #e4e7eb !important; transform: scale(0.98) !important; transition: transform 0.05s ease; }
-        .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid #2c3e50; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
 </head>
 <body>
-<!-- START ADMIN DRAWER -->
-<header>
-    <button onclick="toggleDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer; color: #ffffff; padding:0; display:flex; align-items:center;">☰</button>
-    <span id="pageMainHeader" style="font-weight:bold;">ASD</span>
-</header>
-<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
-<nav class="drawer" id="drawer">
-    <div class="drawer-header">تصفح السور والصفحات</div>
-    <div id="drawerLoader" class="drawer-loader"></div>
-    <div class="drawer-menu-container">
-        <ul class="drawer-menu" id="drawerDynamicMenu"></ul>
-    </div>
-</nav>
-<!-- END ADMIN DRAWER -->
 
 <div class="container">
 
@@ -459,6 +420,12 @@
             document.getElementById("login-container").style.display = "none";
             document.getElementById("main-container").style.display = "block";
             document.getElementById("repo-title").innerText = `مستودع: ${GITHUB_USER}/${GITHUB_REPO}`;
+            
+            // ملء حقول الإدخال احتياطياً لمنع مسح البيانات
+            document.getElementById("git-user").value = GITHUB_USER;
+            document.getElementById("git-repo").value = GITHUB_REPO;
+            document.getElementById("git-token").value = GITHUB_TOKEN;
+
             loadHtmlFiles();
             loadOrderJson();
         } else {
@@ -488,7 +455,9 @@
 
     function logout() {
         if(confirm("هل تريد بالتأكيد تسجيل الخروج وتعديل بيانات الاتصال بالـ GitHub؟")) {
-            localStorage.clear();
+            localStorage.removeItem("git_user");
+            localStorage.removeItem("git_repo");
+            localStorage.removeItem("git_token");
             checkAuth();
         }
     }
@@ -658,7 +627,7 @@
     function loadOrderJson() {
         const orderLoader = document.getElementById("order-loader");
         const orderListContainer = document.getElementById("order-list");
-        orderLoader.style.display = "block";
+        if(orderLoader) orderLoader.style.display = "block";
         orderListContainer.innerHTML = "";
 
         const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/order.json`;
@@ -677,7 +646,7 @@
             return response.json();
         })
         .then(data => {
-            orderLoader.style.display = "none";
+            if(orderLoader) orderLoader.style.display = "none";
             if (data.isNew) {
                 pagesOrder = [];
                 orderFileSha = "";
@@ -702,13 +671,14 @@
             renderOrderList();
         })
         .catch(err => {
-            orderLoader.style.display = "none";
+            if(orderLoader) orderLoader.style.display = "none";
             console.log("خطأ في جلب ملف الترتيب: " + err.message);
         });
     }
 
     function renderOrderList() {
         const orderListContainer = document.getElementById("order-list");
+        if(!orderListContainer) return;
         orderListContainer.innerHTML = "";
 
         const combinedList = [...pagesOrder];
@@ -834,8 +804,8 @@
         const loader = document.getElementById("loader");
         const listContainer = document.getElementById("files-list");
         
-        loader.style.display = "block";
-        listContainer.innerHTML = "";
+        if(loader) loader.style.display = "block";
+        if(listContainer) listContainer.innerHTML = "";
 
         const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
 
@@ -850,33 +820,35 @@
             return response.json();
         })
         .then(data => {
-            loader.style.display = "none";
+            if(loader) loader.style.display = "none";
             const htmlFiles = data.filter(file => file.type === "file" && file.name.toLowerCase().endsWith(".html"));
             allHtmlFilesList = htmlFiles;
             
             if(htmlFiles.length === 0) {
-                listContainer.innerHTML = "<p style='text-align:center;color:#7f8c8d;'>لا توجد صفحات HTML في هذا المستودع حالياً.</p>";
+                if(listContainer) listContainer.innerHTML = "<p style='text-align:center;color:#7f8c8d;'>لا توجد صفحات HTML في هذا المستودع حالياً.</p>";
                 return;
             }
 
             renderOrderList();
 
-            htmlFiles.forEach(file => {
-                const li = document.createElement("li");
-                li.className = "file-item";
-                li.innerHTML = `
-                    <span class="file-name" onclick="editFile('${file.path}', '${file.sha}')">${file.name}</span>
-                    <div class="actions">
-                        <button class="btn btn-dark" style="padding: 4px 8px; font-size: 0.8rem;" onclick="copyFilePath('${file.name}')">نسخ المسار</button>
-                        <button class="btn" style="padding: 4px 8px; font-size: 0.8rem;" onclick="editFile('${file.path}', '${file.sha}')">تعديل الكود</button>
-                        <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.8rem;" onclick="deleteFile('${file.path}', '${file.sha}')">حذف</button>
-                    </div>
-                `;
-                listContainer.appendChild(li);
-            });
+            if(listContainer) {
+                htmlFiles.forEach(file => {
+                    const li = document.createElement("li");
+                    li.className = "file-item";
+                    li.innerHTML = `
+                        <span class="file-name" onclick="editFile('${file.path}', '${file.sha}')">${file.name}</span>
+                        <div class="actions">
+                            <button class="btn btn-dark" style="padding: 4px 8px; font-size: 0.8rem;" onclick="copyFilePath('${file.name}')">نسخ المسار</button>
+                            <button class="btn" style="padding: 4px 8px; font-size: 0.8rem;" onclick="editFile('${file.path}', '${file.sha}')">تعديل الكود</button>
+                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.8rem;" onclick="deleteFile('${file.path}', '${file.sha}')">حذف</button>
+                        </div>
+                    `;
+                    listContainer.appendChild(li);
+                });
+            }
         })
         .catch(err => {
-            loader.style.display = "none";
+            if(loader) loader.style.display = "none";
             alert(err.message);
         });
     }
@@ -923,81 +895,330 @@
                 document.getElementById("drawer-text-hex").value = "#ffffff";
             }
 
-            decodedContent = decodedContent.replace(/';
-
-        const adminDrawerHtml = '';
-
-        const adminScripts = '
-<script id="admin-scripts">
-    const username = "BLOXMAM";
-    const repo = "app_ddir";
-    const currentFileName = "ASD.html";
-
-    function toggleDrawer() {
-        const drawer = document.getElementById("drawer");
-        const overlay = document.getElementById("drawerOverlay");
-        drawer.classList.toggle("open");
-        overlay.style.display = drawer.classList.contains("open") ? "block" : "none";
-    }
-
-    function renderDrawerContent(orderedPages) {
-        const drawerMenu = document.getElementById("drawerDynamicMenu");
-        drawerMenu.innerHTML = "";
-        const currentPageData = orderedPages.find(p => p.file === currentFileName);
-        if (currentPageData && currentPageData.title) {
-            document.getElementById("pageMainHeader").innerText = currentPageData.title;
-            if(document.getElementById("pageContentTitle")) document.getElementById("pageContentTitle").innerText = currentPageData.title;
-            document.title = currentPageData.title;
-        }
-        orderedPages.forEach(page => {
-            const li = document.createElement("li");
-            li.className = "drawer-item";
-            li.innerHTML = "<span>" + page.title + "</span><span>📖</span>";
-            li.onclick = () => {
-                if (typeof Android !== "undefined" && Android.openLocalPage) {
-                    Android.openLocalPage(page.file);
-                } else {
-                    window.location.href = page.file;
-                }
-            };
-            drawerMenu.appendChild(li);
+            decodedContent = decodedContent.replace(/<style id="admin-styles">[\s\S]*?<\/style>/g, "");
+            decodedContent = decodedContent.replace(/<!-- START ADMIN DRAWER -->[\s\S]*?<!-- END ADMIN DRAWER -->/g, "");
+            decodedContent = decodedContent.replace(/<script id="admin-scripts">[\s\S]*?<\/script>/g, "");
+            
+            document.getElementById("code-editor").value = decodedContent;
+        })
+        .catch(err => {
+            alert("خطأ أثناء جلب محتوى الملف: " + err.message);
+            closeEditor();
         });
     }
 
-    async function initDrawer() {
-        const loader = document.getElementById("drawerLoader");
-        let loadedSuccessfully = false;
-        try {
-            if (typeof Android !== "undefined" && Android.readLocalFile) {
-                const localData = Android.readLocalFile("order.json");
-                if (localData && localData.trim() !== "") {
-                    const orderedPages = JSON.parse(localData);
-                    renderDrawerContent(orderedPages);
-                    loadedSuccessfully = true;
-                }
-            }
-            if (!loadedSuccessfully) {
-                const res = await fetch(`order.json`);
-                if (res.ok) {
-                    const orderedPages = await res.json();
-                    renderDrawerContent(orderedPages);
-                    loadedSuccessfully = true;
-                } else { throw new Error(); }
-            }
-        } catch(e) {
-            if (!loadedSuccessfully) {
-                try {
-                    const resAlt = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/order.json`);
-                    const dataAlt = await resAlt.json();
-                    const decodedContent = decodeURIComponent(escape(atob(dataAlt.content.replace(/\s/g, ""))));
-                    renderDrawerContent(JSON.parse(decodedContent));
-                } catch(err) { console.log("خطأ في جلب الهيدر"); }
-            }
-        } finally {
-            if(loader) loader.style.display = "none";
+    function saveFileContent() {
+        let userContent = document.getElementById("code-editor").value;
+        const pageName = currentFilePath.replace(".html", "");
+
+        const selectedPos = document.querySelector('input[name="drawer-pos"]:checked').value;
+        const isRight = (selectedPos === "right");
+        
+        let headerColor = document.getElementById("drawer-color-hex").value.trim();
+        if(!headerColor.startsWith('#')) headerColor = '#' + headerColor;
+
+        let textColor = document.getElementById("drawer-text-hex").value.trim();
+        if(!textColor.startsWith('#')) textColor = '#' + textColor;
+
+        userContent = userContent.replace(/<style id="admin-styles">[\s\S]*?<\/style>/g, "");
+        userContent = userContent.replace(/<!-- START ADMIN DRAWER -->[\s\S]*?<!-- END ADMIN DRAWER -->/g, "");
+        userContent = userContent.replace(/<script id="admin-scripts">[\s\S]*?<\/script>/g, "");
+
+        const adminStyles = '<style id="admin-styles">\n' +
+'        * {\n' +
+'            -webkit-user-select: none !important;\n' +
+'            -moz-user-select: none !important;\n' +
+'            -ms-user-select: none !important;\n' +
+'            user-select: none !important;\n' +
+'            -webkit-touch-callout: none !important;\n' +
+'            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;\n' +
+'        }\n' +
+'        body { margin: 0 !important; padding: 0 !important; }\n' +
+'        header { background: ' + headerColor + '; /* drawer-bg-color */ padding: 12px 15px; color: ' + textColor + '; /* drawer-text-color */ display: flex; align-items: center; justify-content: flex-start; width: 100%; box-sizing: border-box; direction: ' + (isRight ? 'rtl' : 'ltr') + '; gap: 15px; }\n' +
+'        .header-brand { display: flex; align-items: center; gap: 15px; width: auto; text-align: ' + (isRight ? 'right' : 'left') + '; }\n' +
+'        \n' +
+'        .menu-btn-container {\n' +
+'            display: flex;\n' +
+'            flex-direction: column;\n' +
+'            justify-content: space-between;\n' +
+'            width: 24px;\n' +
+'            height: 18px;\n' +
+'            background: transparent;\n' +
+'            border: none;\n' +
+'            cursor: pointer;\n' +
+'            padding: 0;\n' +
+'            box-sizing: border-box;\n' +
+'            transition: transform 0.15s ease;\n' +
+'        }\n' +
+'        .menu-btn-container:active {\n' +
+'            transform: scale(0.85);\n' +
+'        }\n' +
+'        .menu-bar-line {\n' +
+'            width: 100%;\n' +
+'            height: 3px;\n' +
+'            background-color: ' + textColor + '; /* drawer-text-color */\n' +
+'            border-radius: 2px;\n' +
+'            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);\n' +
+'            transform-origin: ' + (isRight ? 'right center' : 'left center') + ';\n' +
+'        }\n' +
+'        .menu-btn-container.active-icon .menu-bar-line:nth-child(1) {\n' +
+'            transform: rotate(' + (isRight ? '-45deg' : '45deg') + ');\n' +
+'        }\n' +
+'        .menu-btn-container.active-icon .menu-bar-line:nth-child(2) {\n' +
+'            opacity: 0;\n' +
+'            transform: scaleX(0);\n' +
+'        }\n' +
+'        .menu-btn-container.active-icon .menu-bar-line:nth-child(3) {\n' +
+'            transform: rotate(' + (isRight ? '45deg' : '-45deg') + ');\n' +
+'        }\n' +
+'        \n' +
+'        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }\n' +
+'        .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: #ffffff; z-index: 1002; transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); display: flex; flex-direction: column; ' + (isRight ? 'right: -280px;' : 'left: -280px;') + ' }\n' +
+'        .drawer.open { ' + (isRight ? 'right: 0;' : 'left: 0;') + ' }\n' +
+'        .drawer-header { background: ' + headerColor + '; /* drawer-bg-color */ color: ' + textColor + '; /* drawer-text-color */ padding: 20px; font-weight: bold; text-align: ' + (isRight ? 'right' : 'left') + '; }\n' +
+'        .drawer-menu-container { flex: 1; overflow-y: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }\n' +
+'        .drawer-menu-container::-webkit-scrollbar { display: none; }\n' +
+'        .drawer-menu { list-style: none; padding: 10px 0; margin: 0; direction: ' + (isRight ? 'rtl' : 'ltr') + '; }\n' +
+'        .drawer-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #333333; transition: all 0.2s ease; outline: none; -webkit-tap-highlight-color: transparent; }\n' +
+'        .drawer-item:hover { background-color: #f1f2f6; transform: translateX(' + (isRight ? '-4px' : '4px') + '); color: ' + headerColor + '; }\n' +
+'        .drawer-item:active { background-color: #e4e7eb !important; transform: scale(0.98) !important; transition: transform 0.05s ease; }\n' +
+'        .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid ' + headerColor + '; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }\n' +
+'        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }\n' +
+'    </style>';
+
+        const adminDrawerHtml = '<!-- START ADMIN DRAWER -->\n' +
+'<header>\n' +
+'    <button class="menu-btn-container" id="menuBtnToggle" onclick="toggleDrawer()">\n' +
+'        <div class="menu-bar-line"></div>\n' +
+'        <div class="menu-bar-line"></div>\n' +
+'        <div class="menu-bar-line"></div>\n' +
+'    </button>\n' +
+'    <span id="pageMainHeader" style="font-weight:bold; font-size: 1.1rem; margin-top: -2px;">' + pageName + '</span>\n' +
+'</header>\n' +
+'<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>\n' +
+'<nav class="drawer" id="drawer">\n' +
+'    <div class="drawer-header">تصفح السور والصفحات</div>\n' +
+'    <div id="drawerLoader" class="drawer-loader"></div>\n' +
+'    <div class="drawer-menu-container">\n' +
+'        <ul class="drawer-menu" id="drawerDynamicMenu"></ul>\n' +
+'    </div>\n' +
+'</nav>\n' +
+'<!-- END ADMIN DRAWER -->';
+
+        const adminScripts = '<script id="admin-scripts">\n' +
+'    const username = "' + GITHUB_USER + '";\n' +
+'    const repo = "' + GITHUB_REPO + '";\n' +
+'    const currentFileName = "' + currentFilePath + '";\n' +
+'\n' +
+'    function toggleDrawer() {\n' +
+'        const drawer = document.getElementById("drawer");\n' +
+'        const overlay = document.getElementById("drawerOverlay");\n' +
+'        const menuBtn = document.getElementById("menuBtnToggle");\n' +
+'        \n' +
+'        drawer.classList.toggle("open");\n' +
+'        \n' +
+'        if(drawer.classList.contains("open")) {\n' +
+'            overlay.style.display = "block";\n' +
+'            menuBtn.classList.add("active-icon");\n' +
+'        } else {\n' +
+'            overlay.style.display = "none";\n' +
+'            menuBtn.classList.remove("active-icon");\n' +
+'        }\n' +
+'    }\n' +
+'\n' +
+'    function renderDrawerContent(orderedPages) {\n' +
+'        const drawerMenu = document.getElementById("drawerDynamicMenu");\n' +
+'        drawerMenu.innerHTML = "";\n' +
+'        const currentPageData = orderedPages.find(p => p.file === currentFileName);\n' +
+'        if (currentPageData && currentPageData.title) {\n' +
+'            document.getElementById("pageMainHeader").innerText = currentPageData.title;\n' +
+'            if(document.getElementById("pageContentTitle")) document.getElementById("pageContentTitle").innerText = currentPageData.title;\n' +
+'            document.title = currentPageData.title;\n' +
+'        }\n' +
+'        orderedPages.forEach(page => {\n' +
+'            const li = document.createElement("li");\n' +
+'            li.className = "drawer-item";\n' +
+'            li.innerHTML = "<span>" + page.title + "</span><span>📖</span>";\n' +
+'            li.onclick = () => {\n' +
+'                if (typeof Android !== "undefined" && Android.openLocalPage) {\n' +
+'                    Android.openLocalPage(page.file);\n' +
+'                } else {\n' +
+'                    window.location.href = page.file;\n' +
+'                }\n' +
+'            };\n' +
+'            drawerMenu.appendChild(li);\n' +
+'        });\n' +
+'    }\n' +
+'\n' +
+'    async function initDrawer() {\n' +
+'        const loader = document.getElementById("drawerLoader");\n' +
+'        let loadedSuccessfully = false;\n' +
+'        try {\n' +
+'            if (typeof Android !== "undefined" && Android.readLocalFile) {\n' +
+'                const localData = Android.readLocalFile("order.json");\n' +
+'                if (localData && localData.trim() !== "") {\n' +
+'                    const orderedPages = JSON.parse(localData);\n' +
+'                    renderDrawerContent(orderedPages);\n' +
+'                    loadedSuccessfully = true;\n' +
+'                }\n' +
+'            }\n' +
+'            if (!loadedSuccessfully) {\n' +
+'                const res = await fetch(`order.json`);\n' +
+'                if (res.ok) {\n' +
+'                    const orderedPages = await res.json();\n' +
+'                    renderDrawerContent(orderedPages);\n' +
+'                    loadedSuccessfully = true;\n' +
+'                } else { throw new Error(); }\n' +
+'            }\n' +
+'        } catch(e) {\n' +
+'            if (!loadedSuccessfully) {\n' +
+'                try {\n' +
+'                    const resAlt = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/order.json`);\n' +
+'                    const dataAlt = await resAlt.json();\n' +
+'                    const decodedContent = decodeURIComponent(escape(atob(dataAlt.content.replace(/\\s/g, ""))));\n' +
+'                    renderDrawerContent(JSON.parse(decodedContent));\n' +
+'                } catch(err) { console.log("خطأ في جلب الهيدر"); }\n' +
+'            }\n' +
+'        } finally {\n' +
+'            if(loader) loader.style.display = "none";\n' +
+'        }\n' +
+'    }\n' +
+'    initDrawer();\n' +
+'<\/script>';
+
+        if (userContent.includes("</head>")) {
+            userContent = userContent.replace("</head>", adminStyles + "\n</head>");
+        } else {
+            userContent = adminStyles + "\n" + userContent;
         }
+
+        if (userContent.includes("<body>")) {
+            userContent = userContent.replace("<body>", "<body>\n" + adminDrawerHtml);
+        } else if (userContent.match(/<body[^>]*>/)) {
+            userContent = userContent.replace(/<body([^>]*)>/, "<body$1>\n" + adminDrawerHtml);
+        }
+
+        if (userContent.includes("</body>")) {
+            userContent = userContent.replace("</body>", adminScripts + "\n</body>");
+        } else {
+            userContent = userContent + "\n" + adminScripts;
+        }
+
+        const encodedContent = btoa(unescape(encodeURIComponent(userContent)));
+        const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${currentFilePath}`;
+
+        const bodyData = {
+            message: `تحديث زر القائمة الهامبرغر مع انيميشن الـ 3 خطوط وتأثيرات اللمس المتفاعل ومحاكاة التظليل الخفيف`,
+            content: encodedContent,
+            sha: currentFileSha
+        };
+
+        fetch(url, {
+            method: "PUT",
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Content-Type": "application/json",
+                "Accept": "application/vnd.github.v3+json"
+            },
+            body: JSON.stringify(bodyData)
+        })
+        .then(response => {
+            if(!response.ok) throw new Error("فشل الحفظ على GitHub.");
+            return response.json();
+        })
+        .then(data => {
+            currentFileSha = data.content.sha;
+            showAndroidToast("تم حفظ التعديلات الجديدة بنجاح");
+            updateVersionTxtOnGithub();
+            closeEditor();
+            loadHtmlFiles();
+        })
+        .catch(err => {
+            alert("خطأ أثناء حفظ الملف: " + err.message);
+        });
     }
-    initDrawer();
+
+    function deleteFile(path, sha) {
+        if (!confirm(`هل أنت متأكد تماماً من رغبتك في حذف الصفحة "${path}" بشكل نهائي؟`)) {
+            return;
+        }
+
+        const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
+        const bodyData = {
+            message: `حذف صفحة ${path} بواسطة لوحة التحكم`,
+            sha: sha
+        };
+
+        fetch(url, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Content-Type": "application/json",
+                "Accept": "application/vnd.github.v3+json"
+            },
+            body: JSON.stringify(bodyData)
+        })
+        .then(response => {
+            if(!response.ok) throw new Error("فشل حذف الصفحة من GitHub.");
+            return response.json();
+        })
+        .then(data => {
+            pagesOrder = pagesOrder.filter(p => p.file !== path);
+            saveOrderJson();
+            showAndroidToast("تم الحذف بنجاح");
+            updateVersionTxtOnGithub();
+            loadHtmlFiles();
+        })
+        .catch(err => {
+            alert("خطأ أثناء حذف الملف: " + err.message);
+        });
+    }
+
+    function showCreateModal() {
+        let pageName = prompt("أدخل اسم الصفحة الجديدة (دون كتابة .html):");
+        if (!pageName) return;
+
+        pageName = pageName.trim();
+        pageName = pageName.replace(/\.[^/.]+$/, ""); 
+        
+        if (pageName === "") {
+            alert("الاسم غير صالح!");
+            return;
+        }
+
+        const finalFileName = pageName + ".html";
+        
+        const defaultHtml = '<!DOCTYPE html>\n' +
+'<html lang="ar" dir="rtl">\n' +
+'<head>\n' +
+'    <meta charset="UTF-8">\n' +
+'    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+'    <title>' + pageName + '</title>\n' +
+'    <style>\n' +
+'        * {\n' +
+'            user-select: none !important;\n' +
+'            -webkit-user-select: none !important;\n' +
+'            -moz-user-select: none !important;\n' +
+'            -ms-user-select: none !important;\n' +
+'        }\n' +
+'    </style>\n' +
+'</head>\n' +
+'<body>\n' +
+'\n' +
+'<main style="padding: 20px;">\n' +
+'    <h1 id="pageContentTitle">صفحة ' + pageName + '</h1>\n' +
+'    <p>محتوى الصفحة الافتراضي المخصص لك.</p>\n' +
+'</main>\n' +
+'\n' +
+'</body>\n' +
+'</html>';
+
+        currentFilePath = finalFileName;
+        currentFileSha = ""; 
+        
+        document.getElementById("code-editor").value = defaultHtml;
+        saveFileContent();
+    }
 </script>
 </body>
 </html>
