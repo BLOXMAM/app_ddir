@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>metalpro(2)</title>
+    <style>
+        * {
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+        }
+    </style>
+<style id="admin-styles">
+        body { margin: 0 !important; padding: 0 !important; }
+        header { background: #2c3e50; /* drawer-bg-color */ padding: 15px; color: #ffffff; /* drawer-text-color */ display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; }
+        .header-brand { display: flex; align-items: center; gap: 15px; width: 100%; justify-content: space-between; direction: rtl; text-align: right; }
+        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }
+        .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: #ffffff; z-index: 1002; transition: all 0.3s ease; display: flex; flex-direction: column; right: -280px; }
+        .drawer.open { right: 0; }
+        .drawer-header { background: #2c3e50; /* drawer-bg-color */ color: #ffffff; /* drawer-text-color */ padding: 20px; font-weight: bold; }
+        .drawer-menu { list-style: none; padding: 10px 0; margin: 0; }
+        .drawer-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #333333; }
+        .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid #2c3e50; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+<!-- START ADMIN DRAWER -->
+<header>
+    <div class="header-brand">
+        <button onclick="toggleDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer; color: #ffffff; padding:0; display:flex; align-items:center; order: 1;">☰</button>
+        <span id="pageMainHeader" style="font-weight:bold; order: 2;">metalpro(2)</span>
+    </div>
+</header>
+<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+<nav class="drawer" id="drawer">
+    <div class="drawer-header">تصفح السور والصفحات</div>
+    <div id="drawerLoader" class="drawer-loader"></div>
+    <ul class="drawer-menu" id="drawerDynamicMenu"></ul>
+</nav>
+<!-- END ADMIN DRAWER -->
+
+<main style="padding: 20px;">
+    <h1 id="pageContentTitle">صفحة metalpro(2)</h1>
+    <p>محتوى الصفحة الافتراضي المخصص لك.</p>
+</main>
+
+<script id="admin-scripts">
+    const username = "BLOXMAM";
+    const repo = "app_ddir";
+    const currentFileName = "metalpro(2).html";
+
+    function toggleDrawer() {
+        const drawer = document.getElementById("drawer");
+        const overlay = document.getElementById("drawerOverlay");
+        drawer.classList.toggle("open");
+        overlay.style.display = drawer.classList.contains("open") ? "block" : "none";
+    }
+
+    function renderDrawerContent(orderedPages) {
+        const drawerMenu = document.getElementById("drawerDynamicMenu");
+        drawerMenu.innerHTML = "";
+        const currentPageData = orderedPages.find(p => p.file === currentFileName);
+        if (currentPageData && currentPageData.title) {
+            document.getElementById("pageMainHeader").innerText = currentPageData.title;
+            if(document.getElementById("pageContentTitle")) document.getElementById("pageContentTitle").innerText = currentPageData.title;
+            document.title = currentPageData.title;
+        }
+        orderedPages.forEach(page => {
+            const li = document.createElement("li");
+            li.className = "drawer-item";
+            li.innerHTML = "<span>" + page.title + "</span><span>📖</span>";
+            li.onclick = () => {
+                if (typeof Android !== "undefined" && Android.openLocalPage) {
+                    Android.openLocalPage(page.file);
+                } else {
+                    window.location.href = page.file;
+                }
+            };
+            drawerMenu.appendChild(li);
+        });
+    }
+
+    async function initDrawer() {
+        const loader = document.getElementById("drawerLoader");
+        let loadedSuccessfully = false;
+        try {
+            if (typeof Android !== "undefined" && Android.readLocalFile) {
+                const localData = Android.readLocalFile("order.json");
+                if (localData && localData.trim() !== "") {
+                    const orderedPages = JSON.parse(localData);
+                    renderDrawerContent(orderedPages);
+                    loadedSuccessfully = true;
+                }
+            }
+            if (!loadedSuccessfully) {
+                const res = await fetch(`order.json`);
+                if (res.ok) {
+                    const orderedPages = await res.json();
+                    renderDrawerContent(orderedPages);
+                    loadedSuccessfully = true;
+                } else { throw new Error(); }
+            }
+        } catch(e) {
+            if (!loadedSuccessfully) {
+                try {
+                    const resAlt = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/order.json`);
+                    const dataAlt = await resAlt.json();
+                    const decodedContent = decodeURIComponent(escape(atob(dataAlt.content.replace(/\s/g, ""))));
+                    renderDrawerContent(JSON.parse(decodedContent));
+                } catch(err) { console.log("خطأ في جلب الهيدر"); }
+            }
+        } finally {
+            if(loader) loader.style.display = "none";
+        }
+    }
+    initDrawer();
+</script>
+</body>
+</html>
