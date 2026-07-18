@@ -16,6 +16,7 @@
 
 
 
+
 <style id="admin-styles">
         * {
             -webkit-user-select: none !important;
@@ -26,7 +27,7 @@
             -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
         }
         body { margin: 0 !important; padding: 0 !important; }
-        header { background: #2c3e50; /* drawer-bg-color */ padding: 16px 15px; color: #ffffff; /* drawer-text-color */ display: flex; align-items: center; justify-content: flex-start; width: 100%; box-sizing: border-box; direction: rtl; gap: 15px; }
+        header { background: #800ffc; /* drawer-bg-color */ padding: 16px 15px; color: #000000; /* drawer-text-color */ display: flex; align-items: center; justify-content: flex-start; width: 100%; box-sizing: border-box; direction: rtl; gap: 15px; }
         .header-brand { display: flex; align-items: center; gap: 15px; width: auto; text-align: right; }
         
         .menu-btn-container {
@@ -48,7 +49,7 @@
         .menu-bar-line {
             width: 100%;
             height: 3px;
-            background-color: #ffffff; /* drawer-text-color */
+            background-color: #000000; /* drawer-text-color */
             border-radius: 2px;
             transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
             transform-origin: right center;
@@ -67,14 +68,14 @@
         .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }
         .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: #ffffff; z-index: 1002; transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); display: flex; flex-direction: column; right: -280px; }
         .drawer.open { right: 0; }
-        .drawer-header { background: #2c3e50; /* drawer-bg-color */ color: #ffffff; /* drawer-text-color */ padding: 12px 20px; font-weight: bold; text-align: right; }
+        .drawer-header { background: #800ffc; /* drawer-bg-color */ color: #000000; /* drawer-text-color */ padding: 16px 15px; font-weight: bold; text-align: right; }
         .drawer-menu-container { flex: 1; overflow-y: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
         .drawer-menu-container::-webkit-scrollbar { display: none; }
         .drawer-menu { list-style: none; padding: 10px 0; margin: 0; direction: rtl; }
         .drawer-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #333333; transition: all 0.2s ease; outline: none; -webkit-tap-highlight-color: transparent; }
-        .drawer-item:hover { background-color: #f1f2f6; transform: translateX(-4px); color: #2c3e50; }
+        .drawer-item:hover { background-color: #f1f2f6; transform: translateX(-4px); color: #800ffc; }
         .drawer-item:active { background-color: #e4e7eb !important; transform: scale(0.98) !important; transition: transform 0.05s ease; }
-        .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid #2c3e50; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }
+        .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid #800ffc; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -102,10 +103,12 @@
 
 
 
+
 <main style="padding: 20px;">
     <h1 id="pageContentTitle">صفحة DRAGON</h1>
     <p>محتوى الصفحة الافتراضي المخصص لك.</p>
 </main>
+
 
 
 
