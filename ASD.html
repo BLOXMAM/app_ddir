@@ -372,6 +372,9 @@
 
             <span style="font-weight: bold; font-size: 0.9rem; margin-right: 10px;">لون النص:</span>
             <input type="text" id="drawer-text-hex" value="#ffffff" placeholder="#ffffff" style="width: 85px; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; text-align: center; font-size: 0.85rem;">
+            
+            <span style="font-weight: bold; font-size: 0.9rem; margin-right: 10px;">border الدروير:</span>
+            <input type="text" id="drawer-border-css" value="1px solid rgba(0,0,0,0.1)" placeholder="1px solid #eee" style="width: 150px; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; text-align: center; font-size: 0.85rem;">
         </div>
 
         <div class="find-replace-bar">
@@ -894,6 +897,13 @@
             } else {
                 document.getElementById("drawer-text-hex").value = "#ffffff";
             }
+            
+            const borderMatch = decodedContent.match(/border-bottom:\s*([^;]+);\s*\/\*\s*drawer-header-border\s*\*\//);
+            if(borderMatch && borderMatch[1]) {
+                document.getElementById("drawer-border-css").value = borderMatch[1].trim();
+            } else {
+                document.getElementById("drawer-border-css").value = "1px solid rgba(0,0,0,0.1)";
+            }
 
             decodedContent = decodedContent.replace(/<style id="admin-styles">[\s\S]*?<\/style>/g, "");
             decodedContent = decodedContent.replace(/<!-- START ADMIN DRAWER -->[\s\S]*?<!-- END ADMIN DRAWER -->/g, "");
@@ -919,6 +929,8 @@
 
         let textColor = document.getElementById("drawer-text-hex").value.trim();
         if(!textColor.startsWith('#')) textColor = '#' + textColor;
+        
+        let borderStyle = document.getElementById("drawer-border-css").value.trim();
 
         userContent = userContent.replace(/<style id="admin-styles">[\s\S]*?<\/style>/g, "");
         userContent = userContent.replace(/<!-- START ADMIN DRAWER -->[\s\S]*?<!-- END ADMIN DRAWER -->/g, "");
@@ -975,7 +987,7 @@
 '        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }\n' +
 '        .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: #ffffff; z-index: 1002; transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); display: flex; flex-direction: column; ' + (isRight ? 'right: -280px;' : 'left: -280px;') + ' }\n' +
 '        .drawer.open { ' + (isRight ? 'right: 0;' : 'left: 0;') + ' }\n' +
-'        .drawer-header { background: ' + headerColor + '; /* drawer-bg-color */ color: ' + textColor + '; /* drawer-text-color */ padding: 12px 20px; font-weight: bold; text-align: ' + (isRight ? 'right' : 'left') + '; }\n' +
+'        .drawer-header { background: ' + headerColor + '; /* drawer-bg-color */ color: ' + textColor + '; /* drawer-text-color */ padding: 16px 15px; font-weight: bold; text-align: ' + (isRight ? 'right' : 'left') + '; border-bottom: ' + borderStyle + '; /* drawer-header-border */ box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; }\n' +
 '        .drawer-menu-container { flex: 1; overflow-y: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }\n' +
 '        .drawer-menu-container::-webkit-scrollbar { display: none; }\n' +
 '        .drawer-menu { list-style: none; padding: 10px 0; margin: 0; direction: ' + (isRight ? 'rtl' : 'ltr') + '; }\n' +
@@ -997,7 +1009,7 @@
 '</header>\n' +
 '<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>\n' +
 '<nav class="drawer" id="drawer">\n' +
-'    <div class="drawer-header">' + pageName + '</div>\n' +
+'    <div class="drawer-header" id="drawerMainHeader">' + pageName + '</div>\n' +
 '    <div id="drawerLoader" class="drawer-loader"></div>\n' +
 '    <div class="drawer-menu-container">\n' +
 '        <ul class="drawer-menu" id="drawerDynamicMenu"></ul>\n' +
@@ -1032,6 +1044,7 @@
 '        const currentPageData = orderedPages.find(p => p.file === currentFileName);\n' +
 '        if (currentPageData && currentPageData.title) {\n' +
 '            document.getElementById("pageMainHeader").innerText = currentPageData.title;\n' +
+'            if(document.getElementById("drawerMainHeader")) document.getElementById("drawerMainHeader").innerText = currentPageData.title;\n' +
 '            if(document.getElementById("pageContentTitle")) document.getElementById("pageContentTitle").innerText = currentPageData.title;\n' +
 '            document.title = currentPageData.title;\n' +
 '        }\n' +
