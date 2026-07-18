@@ -14,6 +14,7 @@
     </style>
 
 
+
 <style id="admin-styles">
         * {
             -webkit-user-select: none !important;
@@ -65,7 +66,7 @@
         .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }
         .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: #ffffff; z-index: 1002; transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); display: flex; flex-direction: column; left: -280px; }
         .drawer.open { left: 0; }
-        .drawer-header { background: #2c3e50; /* drawer-bg-color */ color: #ffffff; /* drawer-text-color */ padding: 16px 15px; font-weight: bold; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.1); /* drawer-header-border */ box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; }
+        .drawer-header { background: #2c3e50; /* drawer-bg-color */ color: #ffffff; /* drawer-text-color */ padding: 12px 20px; font-weight: bold; text-align: left; }
         .drawer-menu-container { flex: 1; overflow-y: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
         .drawer-menu-container::-webkit-scrollbar { display: none; }
         .drawer-menu { list-style: none; padding: 10px 0; margin: 0; direction: ltr; }
@@ -88,7 +89,7 @@
 </header>
 <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
 <nav class="drawer" id="drawer">
-    <div class="drawer-header" id="drawerMainHeader">DRAGON</div>
+    <div class="drawer-header">DRAGON</div>
     <div id="drawerLoader" class="drawer-loader"></div>
     <div class="drawer-menu-container">
         <ul class="drawer-menu" id="drawerDynamicMenu"></ul>
@@ -98,10 +99,12 @@
 
 
 
+
 <main style="padding: 20px;">
     <h1 id="pageContentTitle">صفحة DRAGON</h1>
     <p>محتوى الصفحة الافتراضي المخصص لك.</p>
 </main>
+
 
 
 
@@ -132,7 +135,6 @@
         const currentPageData = orderedPages.find(p => p.file === currentFileName);
         if (currentPageData && currentPageData.title) {
             document.getElementById("pageMainHeader").innerText = currentPageData.title;
-            if(document.getElementById("drawerMainHeader")) document.getElementById("drawerMainHeader").innerText = currentPageData.title;
             if(document.getElementById("pageContentTitle")) document.getElementById("pageContentTitle").innerText = currentPageData.title;
             document.title = currentPageData.title;
         }
