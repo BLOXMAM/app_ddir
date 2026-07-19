@@ -237,28 +237,19 @@
   </style>
 
 
+
 <style id="admin-styles">
         :root {
-            --drawer-bg-light: #2c3e50; /* light-bg-var */
-            --drawer-text-light: #ffffff; /* light-text-var */
-            --drawer-bg-dark: #1a252f; /* dark-bg-var */
-            --drawer-text-dark: #ecf0f1; /* dark-text-var */
-            --header-bg: var(--drawer-bg-light);
-            --header-text: var(--drawer-text-light);
-            --drawer-menu-bg: #ffffff;
-            --drawer-item-color: #333333;
+            --drawer-bg-light: #2c3e50;
+            --drawer-text-light: #ffffff;
+            --drawer-bg: var(--drawer-bg-light);
+            --drawer-text: var(--drawer-text-light);
         }
-        [data-header-theme="dark"] {
-            --header-bg: var(--drawer-bg-dark);
-            --header-text: var(--drawer-text-dark);
-            --drawer-menu-bg: #2c3e50;
-            --drawer-item-color: #ecf0f1;
-        }
-        [data-header-theme="light"] {
-            --header-bg: var(--drawer-bg-light);
-            --header-text: var(--drawer-text-light);
-            --drawer-menu-bg: #ffffff;
-            --drawer-item-color: #333333;
+        [data-user-theme="dark"] {
+            --drawer-bg-dark: #1a252f;
+            --drawer-text-dark: #ecf0f1;
+            --drawer-bg: var(--drawer-bg-dark);
+            --drawer-text: var(--drawer-text-dark);
         }
         * {
             -webkit-user-select: none !important;
@@ -268,10 +259,9 @@
             -webkit-touch-callout: none !important;
             -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
         }
-        body { margin: 0 !important; padding-top: 56px !important; }
-        header { position: fixed !important; top: 0 !important; left: 0 !important; z-index: 1000 !important; background: var(--header-bg) !important; height: 56px !important; line-height: 56px !important; padding: 0 15px !important; color: var(--header-text) !important; display: flex; align-items: center; justify-content: space-between; width: 100% !important; max-width: 100% !important; min-width: 100% !important; box-sizing: border-box; direction: rtl; gap: 15px; overflow: hidden !important; }
+        body { margin: 0 !important; padding: 0 !important; padding-top: 56px !important; }
+        header { position: fixed; top: 0; left: 0; z-index: 1000; background: var(--drawer-bg); height: 56px !important; line-height: 56px !important; padding: 0 15px !important; color: var(--drawer-text); display: flex; align-items: center; justify-content: space-between; width: 100% !important; max-width: 100% !important; min-width: 100% !important; box-sizing: border-box; direction: rtl; gap: 15px; overflow: hidden !important; }
         .header-brand { display: flex; align-items: center; gap: 15px; width: auto; text-align: right; }
-        .header-theme-toggle { background: transparent; border: none; color: var(--header-text); font-size: 1.2rem; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; }
         
         .menu-btn-container {
             display: flex;
@@ -294,7 +284,7 @@
         .menu-bar-line {
             width: 100%;
             height: 3px;
-            background-color: var(--header-text);
+            background-color: var(--drawer-text);
             border-radius: 2px;
             transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
             transform-origin: right center;
@@ -311,20 +301,43 @@
         }
         
         .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }
-        .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: var(--drawer-menu-bg) !important; z-index: 1002; transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); display: flex; flex-direction: column; right: -280px; }
+        .drawer { position: fixed; top: 0; width: 280px; height: 100%; background: var(--drawer-bg); color: var(--drawer-text); z-index: 1002; transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); display: flex; flex-direction: column; right: -280px; }
         .drawer.open { right: 0; }
-        .drawer-header { background: var(--header-bg); color: var(--header-text); height: 56px !important; line-height: 56px !important; padding: 0 15px !important; font-weight: bold; text-align: right; box-sizing: border-box; overflow: hidden !important; }
+        .drawer-header { background: var(--drawer-bg); color: var(--drawer-text); height: 56px !important; line-height: 56px !important; padding: 0 15px !important; font-weight: bold; text-align: right; box-sizing: border-box; overflow: hidden !important; border-bottom: 1px solid rgba(0,0,0,0.1); }
         .drawer-menu-container { flex: 1; overflow-y: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
         .drawer-menu-container::-webkit-scrollbar { display: none; }
         .drawer-menu { list-style: none; padding: 10px 0; margin: 0; direction: rtl; }
-        .drawer-item { padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.08); cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--drawer-item-color) !important; transition: all 0.2s ease; outline: none; -webkit-tap-highlight-color: transparent; }
-        .drawer-item:hover { background-color: rgba(0,0,0,0.05); transform: translateX(-4px); color: var(--header-bg) !important; }
+        .drawer-item { padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--drawer-text); transition: all 0.2s ease; outline: none; -webkit-tap-highlight-color: transparent; }
+        .drawer-item:hover { background-color: rgba(0,0,0,0.05); transform: translateX(-4px); }
         .drawer-item:active { background-color: rgba(0,0,0,0.1) !important; transform: scale(0.98) !important; transition: transform 0.05s ease; }
-        .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--header-bg); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }
+        .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--drawer-text); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }
+        .user-theme-btn { background: transparent; border: none; color: var(--drawer-text); cursor: pointer; font-size: 1.2rem; padding: 5px 10px; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
+<!-- START ADMIN DRAWER -->
+<header>
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <button class="menu-btn-container" id="menuBtnToggle" onclick="toggleDrawer()">
+            <div class="menu-bar-line"></div>
+            <div class="menu-bar-line"></div>
+            <div class="menu-bar-line"></div>
+        </button>
+        <span id="pageMainHeader" style="font-weight:bold; font-size: 1.1rem; display: inline-block; vertical-align: middle;">home</span>
+    </div>
+    <button class="user-theme-btn" id="userThemeToggleBtn" onclick="toggleUserTheme()"><i class="fa-solid fa-moon"></i></button>
+</header>
+<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+<nav class="drawer" id="drawer">
+    <div class="drawer-header" id="drawerSideHeader">home</div>
+    <div id="drawerLoader" class="drawer-loader"></div>
+    <div class="drawer-menu-container">
+        <ul class="drawer-menu" id="drawerDynamicMenu"></ul>
+    </div>
+</nav>
+<!-- END ADMIN DRAWER -->
 
 <header id="userHeader" data-header-theme="light">
     <div class="header-brand">
@@ -346,24 +359,7 @@
     </div>
 </nav>
 
-<!-- START ADMIN DRAWER -->
-<header data-header-theme="light">
-    <button class="menu-btn-container" id="menuBtnToggle" onclick="toggleDrawer()">
-        <div class="menu-bar-line"></div>
-        <div class="menu-bar-line"></div>
-        <div class="menu-bar-line"></div>
-    </button>
-    <span id="pageMainHeader" style="font-weight:bold; font-size: 1.1rem; display: inline-block; vertical-align: middle;">home</span>
-</header>
-<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
-<nav class="drawer" id="drawer">
-    <div class="drawer-header" id="drawerSideHeader">home</div>
-    <div id="drawerLoader" class="drawer-loader"></div>
-    <div class="drawer-menu-container">
-        <ul class="drawer-menu" id="drawerDynamicMenu"></ul>
-    </div>
-</nav>
-<!-- END ADMIN DRAWER -->
+
 
 
   <!-- سلايدر -->
@@ -785,19 +781,33 @@
 </script>
 
 
+
 <script id="admin-scripts">
     const username = "BLOXMAM";
     const repo = "app_ddir";
     const currentFileName = "home.html";
 
-    function toggleHeaderUserTheme() {
-        const header = document.getElementById("userHeader");
-        const icon = document.getElementById("headerThemeIcon");
-        const currentTheme = header.getAttribute("data-header-theme");
-        const newTheme = currentTheme === "dark" ? "light" : "dark";
-        header.setAttribute("data-header-theme", newTheme);
-        if(icon) {
-            icon.className = newTheme === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
+    function initUserTheme() {
+        const saved = localStorage.getItem("user-theme") || "light";
+        if(saved === "dark") {
+            document.documentElement.setAttribute("data-user-theme", "dark");
+            document.getElementById("userThemeToggleBtn").innerHTML = '<i class="fa-solid fa-sun"></i>';
+        } else {
+            document.documentElement.removeAttribute("data-user-theme");
+            document.getElementById("userThemeToggleBtn").innerHTML = '<i class="fa-solid fa-moon"></i>';
+        }
+    }
+
+    function toggleUserTheme() {
+        const current = document.documentElement.getAttribute("data-user-theme");
+        if(current === "dark") {
+            document.documentElement.removeAttribute("data-user-theme");
+            localStorage.setItem("user-theme", "light");
+            document.getElementById("userThemeToggleBtn").innerHTML = '<i class="fa-solid fa-moon"></i>';
+        } else {
+            document.documentElement.setAttribute("data-user-theme", "dark");
+            localStorage.setItem("user-theme", "dark");
+            document.getElementById("userThemeToggleBtn").innerHTML = '<i class="fa-solid fa-sun"></i>';
         }
     }
 
@@ -843,6 +853,7 @@
     }
 
     async function initDrawer() {
+        initUserTheme();
         const loader = document.getElementById("drawerLoader");
         let loadedSuccessfully = false;
         try {
