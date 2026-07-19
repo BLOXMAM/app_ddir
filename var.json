@@ -1,6 +1,6 @@
 {
   "light": {
-    "--maincolor": "#800ffc"
+    "--maincolor": "#ff0000"
   },
   "dark": {
     "--maincolor": "#800f"
