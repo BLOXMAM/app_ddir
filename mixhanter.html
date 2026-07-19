@@ -1,18 +1,112 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mixhanter</title>
+    <title>صفحة اختبار الأكواد والموارد</title>
+    
+    <!-- 1. مكتبات أيقونات من نوع CSS (Font Awesome & Bootstrap Icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- 2. مكتبة أيقونات من نوع JS (Lucide Icons) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        * {
-            user-select: none !important;
-            -webkit-user-select: none !important;
-            -moz-user-select: none !important;
-            -ms-user-select: none !important;
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid var(--card-bg);
+            padding-bottom: 20px;
+        }
+
+        h1 { color: var(--accent-color); }
+
+        .section-title {
+            margin-top: 40px;
+            border-right: 4px solid var(--accent-color);
+            padding-right: 10px;
+        }
+
+        /* تنسيق قسم الأيقونات */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .icon-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .icon-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* اتجاه عرض الأيقونات والكود من اليسار لليمين */
+        .icon-card i, .icon-card svg {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            display: block;
+            margin: 0 auto 10px auto;
+        }
+
+        .icon-label {
+            font-size: 0.85rem;
+            font-family: monospace;
+            direction: ltr;
+            unicode-bidi: embed;
+        }
+
+        /* تنسيق قسم الصور */
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .media-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+        }
+
+        .media-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            background: #273549;
+        }
+
+        .media-info {
+            padding: 15px;
+            font-size: 0.9rem;
+            text-align: center;
         }
     </style>
-
 <style id="admin-styles">
         * {
             -webkit-user-select: none !important;
@@ -97,13 +191,85 @@
 </nav>
 <!-- END ADMIN DRAWER -->
 
+    <header>
+        <h1>بيئة اختبار الموارد الاحترافية</h1>
+        <p>هذه الصفحة مهيأة لاختبار أكوادك البرمجية وتفاعلها مع مكتبات الأيقونات والصور المتنوعة.</p>
+    </header>
 
-<main style="padding: 20px;">
-    <h1 id="pageContentTitle">صفحة mixhanter</h1>
-    <p>محتوى الصفحة الافتراضي المخصص لك.</p>
-</main>
+    <!-- قسم الأيقونات -->
+    <h2 class="section-title">مكتبات الأيقونات (CSS & JS)</h2>
+    
+    <h3>1. أيقونات CSS (Font Awesome)</h3>
+    <div class="icon-grid">
+        <div class="icon-card"><i class="fa-solid fa-house"></i><span class="icon-label">fa-house</span></div>
+        <div class="icon-card"><i class="fa-solid fa-code"></i><span class="icon-label">fa-code</span></div>
+        <div class="icon-card"><i class="fa-solid fa-gear"></i><span class="icon-label">fa-gear</span></div>
+    </div>
 
+    <h3>2. أيقونات CSS (Bootstrap Icons)</h3>
+    <div class="icon-grid">
+        <div class="icon-card"><i class="bi bi-terminal"></i><span class="icon-label">bi-terminal</span></div>
+        <div class="icon-card"><i class="bi bi-cpu"></i><span class="icon-label">bi-cpu</span></div>
+        <div class="icon-card"><i class="bi bi-database"></i><span class="icon-label">bi-database</span></div>
+    </div>
 
+    <h3>3. أيقونات JavaScript (Lucide Icons)</h3>
+    <div class="icon-grid">
+        <div class="icon-card"><i data-lucide="layout"></i><span class="icon-label">layout</span></div>
+        <div class="icon-card"><i data-lucide="play-circle"></i><span class="icon-label">play-circle</span></div>
+        <div class="icon-card"><i data-lucide="save"></i><span class="icon-label">save</span></div>
+    </div>
+
+    <!-- قسم الصور الثابتة -->
+    <h2 class="section-title">6 صور ثابتة من مواقع مختلفة</h2>
+    <div class="image-grid">
+        <div class="media-card">
+            <img src="https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=500" alt="Unsplash Image">
+            <div class="media-info">صورة 1 (Unsplash)</div>
+        </div>
+        <div class="media-card">
+            <img src="https://picsum.photos/id/1062/500/350" alt="Picsum Image">
+            <div class="media-info">صورة 2 (Picsum Photos)</div>
+        </div>
+        <div class="media-card">
+            <img src="https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Pexels Image">
+            <div class="media-info">صورة 3 (Pexels)</div>
+        </div>
+        <div class="media-card">
+            <img src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_960_720.jpg" alt="Pixabay Image">
+            <div class="media-info">صورة 4 (Pixabay)</div>
+        </div>
+        <div class="media-card">
+            <img src="https://c.pxhere.com/photos/c2/48/coding_computer_data_depth_of_field_developer_development_display_electronics-1520721.jpg!d" alt="PxHere Image">
+            <div class="media-info">صورة 5 (PxHere)</div>
+        </div>
+        <div class="media-card">
+            <img src="https://res.cloudinary.com/demo/image/upload/w_500,h_350,c_fill/sample.jpg" alt="Cloudinary Image">
+            <div class="media-info">صورة 6 (Cloudinary)</div>
+        </div>
+    </div>
+
+    <!-- قسم صور GIF -->
+    <h2 class="section-title">3 صور متحركة (GIFs)</h2>
+    <div class="image-grid">
+        <div class="media-card">
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWtoM3Z6cDJ5NTF5YW15cXN6cWptc3B5YW15eWZ5eWZ5Znd5Znd5ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3zhxq2ttgN6rEw8SDx/giphy.gif" alt="Giphy GIF">
+            <div class="media-info">متحركة 1 (Giphy)</div>
+        </div>
+        <div class="media-card">
+            <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWZmaW50ZWt4dHc5NmRxZHd5ZXg1dWNtN2JnbXR3M3p1bXRwdmR2biZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l3q2JCu9lep6dAmyY/giphy.gif" alt="Giphy HTML GIF">
+            <div class="media-info">متحركة 2 (Giphy Code)</div>
+        </div>
+        <div class="media-card">
+            <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbms1M2NjNms4ZzRnd3J5N2pxM2hxamV5dWd2ZmE0d3h5Znd4M2hxZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/13HgwGsXF0aiGY/giphy.gif" alt="Giphy Matrix GIF">
+            <div class="media-info">متحركة 3 (Giphy Matrix)</div>
+        </div>
+    </div>
+
+    <!-- تفعيل مكتبة Lucide لأيقونات الجافا سكريبت -->
+    <script>
+        lucide.createIcons();
+    </script>
 <script id="admin-scripts">
     const username = "BLOXMAM";
     const repo = "app_ddir";
