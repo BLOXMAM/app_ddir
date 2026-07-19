@@ -2,5 +2,7 @@
   "light": {
     "--maincolor": "#800ffc"
   },
-  "dark": {}
+  "dark": {
+    "--maincolor": "#800f"
+  }
 }
