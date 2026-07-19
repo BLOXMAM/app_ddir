@@ -242,6 +242,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style id="admin-styles">
         :root {
             --drawer-bg-light: #2c3e50;
@@ -317,8 +319,9 @@
         .drawer-item:hover { background-color: rgba(0,0,0,0.05); transform: translateX(-4px); }
         .drawer-item:active { background-color: rgba(0,0,0,0.1) !important; transform: scale(0.98) !important; transition: transform 0.05s ease; }
         .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--drawer-text); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }
-        .user-theme-btn { background: transparent; border: none; color: var(--drawer-text); cursor: pointer; font-size: 1.1rem; padding: 6px 12px; display: inline-flex; align-items: center; justify-content: center; transition: background-color 0.2s, transform 0.1s active; border-radius: 6px; }
-        .user-theme-btn:hover { background-color: rgba(0,0,0,0.05); }
+        .user-theme-btn { background: transparent; border: none; color: var(--drawer-text); cursor: pointer; font-size: 1.2rem; width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; transition: background-color 0.2s, transform 0.1s; }
+        .user-theme-btn:hover { background-color: rgba(0,0,0,0.08); }
+        .user-theme-btn:active { transform: scale(0.9); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -345,6 +348,7 @@
     </div>
 </nav>
 <!-- END ADMIN DRAWER -->
+
 
 
 
@@ -793,6 +797,7 @@
 
 
 
+
 <script id="admin-scripts">
     const username = "BLOXMAM";
     const repo = "app_ddir";
@@ -865,8 +870,26 @@
         });
     }
 
+    async function loadGlobalVars() {
+        try {
+            const res = await fetch("var.json");
+            if(res.ok) {
+                const data = await res.json();
+                const styleEl = document.createElement("style");
+                let cssStr = ":root {\n";
+                for(let k in data.light) { cssStr += `  ${k}: ${data.light[k]};\n`; }
+                cssStr += "}\n[data-user-theme='dark'] {\n";
+                for(let k in data.dark) { cssStr += `  ${k}: ${data.dark[k]};\n`; }
+                cssStr += "}";
+                styleEl.innerHTML = cssStr;
+                document.head.appendChild(styleEl);
+            }
+        } catch(e) { console.log("خطأ في تطبيق المتغيرات العامة"); }
+    }
+
     async function initDrawer() {
         initUserTheme();
+        await loadGlobalVars();
         const loader = document.getElementById("drawerLoader");
         let loadedSuccessfully = false;
         try {
