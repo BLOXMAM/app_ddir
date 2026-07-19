@@ -240,14 +240,14 @@
 
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style id="admin-styles">
         :root {
             --drawer-bg-light: #2c3e50;
             --drawer-text-light: #ffffff;
             --drawer-bg: var(--drawer-bg-light);
             --drawer-text: var(--drawer-text-light);
-        --hello: #800ff;
-        --K: #800ffc;
         --maincolor: #800ffc;
         }
         [data-user-theme="dark"] {
@@ -255,6 +255,7 @@
             --drawer-text-dark: #ecf0f1;
             --drawer-bg: var(--drawer-bg-dark);
             --drawer-text: var(--drawer-text-dark);
+        --maincolor: #800f;
         }
         * {
             -webkit-user-select: none !important;
@@ -265,7 +266,7 @@
             -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
         }
         body { margin: 0 !important; padding: 0 !important; padding-top: 56px !important; }
-        header { position: fixed; top: 0; left: 0; z-index: 1000; background: var(--drawer-bg); height: 56px !important; line-height: 56px !important; padding: 0 15px !important; color: var(--drawer-text); display: flex; align-items: center; justify-content: space-between; width: 100% !important; max-width: 100% !important; min-width: 100% !important; box-sizing: border-box; direction: rtl; gap: 15px; overflow: hidden !important; }
+        header { position: fixed; top: 0; left: 0; z-index: 1000; background: var(--drawer-bg); height: 56px !important; line-height: 56px !important; padding: 0 15px !important; color: var(--drawer-text); display: flex; align-items: center; justify-content: space-between; width: 100% !important; max-width: 100% !important; min-width: 100% !important; box-sizing: border-box; direction: rtl; gap: 15px; overflow: hidden !important; transition: background-color 0.3s, color 0.3s; }
         .header-brand { display: flex; align-items: center; gap: 15px; width: auto; text-align: right; }
         
         .menu-btn-container {
@@ -316,7 +317,8 @@
         .drawer-item:hover { background-color: rgba(0,0,0,0.05); transform: translateX(-4px); }
         .drawer-item:active { background-color: rgba(0,0,0,0.1) !important; transform: scale(0.98) !important; transition: transform 0.05s ease; }
         .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--drawer-text); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }
-        .user-theme-btn { background: transparent; border: none; color: var(--drawer-text); cursor: pointer; font-size: 1.2rem; padding: 5px 10px; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .user-theme-btn { background: transparent; border: none; color: var(--drawer-text); cursor: pointer; font-size: 1.1rem; padding: 6px 12px; display: inline-flex; align-items: center; justify-content: center; transition: background-color 0.2s, transform 0.1s active; border-radius: 6px; }
+        .user-theme-btn:hover { background-color: rgba(0,0,0,0.05); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -343,6 +345,7 @@
     </div>
 </nav>
 <!-- END ADMIN DRAWER -->
+
 
 
 <header id="userHeader" data-header-theme="light">
@@ -789,32 +792,35 @@
 
 
 
+
 <script id="admin-scripts">
     const username = "BLOXMAM";
     const repo = "app_ddir";
     const currentFileName = "home.html";
 
     function initUserTheme() {
+        const toggleBtn = document.getElementById("userThemeToggleBtn");
         const saved = localStorage.getItem("user-theme") || "light";
         if(saved === "dark") {
             document.documentElement.setAttribute("data-user-theme", "dark");
-            document.getElementById("userThemeToggleBtn").innerHTML = '<i class="fa-solid fa-sun"></i>';
+            if(toggleBtn) toggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
         } else {
             document.documentElement.removeAttribute("data-user-theme");
-            document.getElementById("userThemeToggleBtn").innerHTML = '<i class="fa-solid fa-moon"></i>';
+            if(toggleBtn) toggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
         }
     }
 
     function toggleUserTheme() {
+        const toggleBtn = document.getElementById("userThemeToggleBtn");
         const current = document.documentElement.getAttribute("data-user-theme");
         if(current === "dark") {
             document.documentElement.removeAttribute("data-user-theme");
             localStorage.setItem("user-theme", "light");
-            document.getElementById("userThemeToggleBtn").innerHTML = '<i class="fa-solid fa-moon"></i>';
+            if(toggleBtn) toggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
         } else {
             document.documentElement.setAttribute("data-user-theme", "dark");
             localStorage.setItem("user-theme", "dark");
-            document.getElementById("userThemeToggleBtn").innerHTML = '<i class="fa-solid fa-sun"></i>';
+            if(toggleBtn) toggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
         }
     }
 
