@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "file": "home.html",
+    "title": "الرئيسية"
+  },
+  {
+    "file": "mixsum.html",
+    "title": "تجريبية"
+  }
+]
