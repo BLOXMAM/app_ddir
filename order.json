@@ -18,5 +18,9 @@
   {
     "file": "vid.html",
     "title": "vid"
+  },
+  {
+    "file": "sound.html",
+    "title": "sound"
   }
 ]
