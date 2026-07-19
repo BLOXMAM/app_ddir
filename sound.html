@@ -3,13 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sound</title>
+    <title>تجربة تشغيل الصوت</title>
     <style>
-        * {
-            user-select: none !important;
-            -webkit-user-select: none !important;
-            -moz-user-select: none !important;
-            -ms-user-select: none !important;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .audio-card {
+            background-color: #1e293b;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #334155;
+        }
+        h1 {
+            color: #38bdf8;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        audio {
+            width: 100%;
+            margin-top: 20px;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
     </style>
 <style id="admin-styles">
@@ -96,10 +132,17 @@
 </nav>
 <!-- END ADMIN DRAWER -->
 
-<main style="padding: 20px;">
-    <h1 id="pageContentTitle">صفحة sound</h1>
-    <p>محتوى الصفحة الافتراضي المخصص لك.</p>
-</main>
+<div class="audio-card">
+    <div class="icon">🎵</div>
+    <h1>صفحة تجربة الصوت</h1>
+    <p style="color: #94a3b8;">اضغط على زر التشغيل في الأسفل للاستماع</p>
+    
+    <!-- استبدل الرابط أدناه برابط ملف الصوت الخاص بك إذا أردت -->
+    <audio controls>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        متصفحك لا يدعم تشغيل الصوت.
+    </audio>
+</div>
 
 <script id="admin-scripts">
     const username = "BLOXMAM";
