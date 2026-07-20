@@ -12,13 +12,15 @@
             -ms-user-select: none !important;
         }
     </style>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style id="admin-styles">
         :root {
             --drawer-bg-light: #ffffff;
             --drawer-text-light: #333333;
             --drawer-bg: var(--drawer-bg-light);
             --drawer-text: var(--drawer-text-light);
-        --maincolor: #800ffc;
+        --maincolor: #ff0000;
         }
         [data-user-theme="dark"] {
             --drawer-bg-dark: #1e1e1e;
@@ -27,7 +29,8 @@
             --drawer-text: var(--drawer-text-dark);
         --maincolor: #800f;
         }
-        * {
+        /* تعطيل التحديد الافتراضي للعناصر العامة باستثناء الوسم السري الجديد */
+        *:not(theme-toggle-btn):not(theme-toggle-btn *) {
             -webkit-user-select: none !important;
             -moz-user-select: none !important;
             -ms-user-select: none !important;
@@ -87,14 +90,37 @@
         .drawer-item:hover { background-color: rgba(0,0,0,0.05); transform: translateX(-4px); }
         .drawer-item:active { background-color: rgba(0,0,0,0.1) !important; transform: scale(0.98) !important; transition: transform 0.05s ease; }
         .drawer-loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--drawer-text); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; }
-        .user-theme-btn {
-            background: transparent; border: none; color: var(--drawer-text); cursor: pointer;
-            font-size: 1.2rem; width: 38px; height: 38px; border-radius: 8px; display: inline-flex;
-            align-items: center; justify-content: center; transition: background-color 0.2s, transform 0.1s;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+        
+        /* التنسيق المطلق للوسم المخصص والجديد كلياً للحماية المطلقة */
+        theme-toggle-btn {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 38px !important;
+            height: 38px !important;
+            border-radius: 8px !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: var(--drawer-text) !important;
+            cursor: pointer !important;
+            font-size: 1.2rem !important;
+            transition: background-color 0.2s, transform 0.1s !important;
+            pointer-events: auto !important;
+            touch-action: auto !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            box-sizing: border-box !important;
         }
-        .user-theme-btn:hover { background-color: rgba(0,0,0,0.08); }
-        .user-theme-btn:active { transform: scale(0.9); }
+        theme-toggle-btn:hover { background-color: rgba(0,0,0,0.08) !important; }
+        theme-toggle-btn:active { transform: scale(0.9) !important; }
+        theme-toggle-btn * {
+            pointer-events: none !important;
+            color: inherit !important;
+            font-size: inherit !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -110,7 +136,7 @@
         </button>
         <span id="pageMainHeader" style="font-weight:bold; font-size: 1.1rem; display: inline-block; vertical-align: middle;">ماكس</span>
     </div>
-    <button class="user-theme-btn" id="userThemeToggleBtn" onclick="toggleUserTheme()"><i class="fa-solid fa-moon"></i></button>
+    <theme-toggle-btn id="customThemeToggleElement" onclick="toggleUserTheme()"><i class="fa-solid fa-moon"></i></theme-toggle-btn>
 </header>
 <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
 <nav class="drawer" id="drawer">
@@ -122,18 +148,21 @@
 </nav>
 <!-- END ADMIN DRAWER -->
 
+
 <main style="padding: 20px;">
     <h1 id="pageContentTitle">صفحة ماكس</h1>
     <p>محتوى الصفحة الافتراضي المخصص لك.</p>
 </main>
 
+
+</body>
 <script id="admin-scripts">
     const username = "BLOXMAM";
     const repo = "app_ddir";
     const currentFileName = "ماكس.html";
 
     function initUserTheme() {
-        const toggleBtn = document.getElementById("userThemeToggleBtn");
+        const toggleBtn = document.getElementById("customThemeToggleElement");
         const saved = localStorage.getItem("user-theme") || "light";
         if(saved === "dark") {
             document.documentElement.setAttribute("data-user-theme", "dark");
@@ -145,7 +174,7 @@
     }
 
     function toggleUserTheme() {
-        const toggleBtn = document.getElementById("userThemeToggleBtn");
+        const toggleBtn = document.getElementById("customThemeToggleElement");
         const current = document.documentElement.getAttribute("data-user-theme");
         if(current === "dark") {
             document.documentElement.removeAttribute("data-user-theme");
@@ -225,33 +254,32 @@
             if (typeof Android !== "undefined" && Android.readLocalFile) {
                 const localData = Android.readLocalFile("order.json");
                 if (localData && localData.trim() !== "") {
-                    const orderedPages = JSON.parse(localData);
-                    renderDrawerContent(orderedPages);
+                    const parsed = JSON.parse(localData);
+                    renderDrawerContent(parsed);
+                    if(loader) loader.style.display = "none";
                     loadedSuccessfully = true;
                 }
             }
-            if (!loadedSuccessfully) {
-                const res = await fetch(`order.json`);
-                if (res.ok) {
-                    const orderedPages = await res.json();
-                    renderDrawerContent(orderedPages);
-                    loadedSuccessfully = true;
-                } else { throw new Error(); }
-            }
-        } catch(e) { 
-            if (!loadedSuccessfully) {
-                try {
-                    const resAlt = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/order.json`);
-                    const dataAlt = await resAlt.json();
-                    const decodedContent = decodeURIComponent(escape(atob(dataAlt.content.replace(/\s/g, ""))));
-                    renderDrawerContent(JSON.parse(decodedContent));
-                } catch(err) { console.log("خطأ في جلب الهيدر"); }
-            }
-        } finally {
-            if(loader) loader.style.display = "none";
+        } catch(e) { console.log("خطأ في قراءة ملف الترتيب محلياً"); }
+        
+        if(!loadedSuccessfully) {
+            fetch("order.json")
+            .then(res => {
+                if(!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(data => {
+                if(loader) loader.style.display = "none";
+                renderDrawerContent(data);
+            })
+            .catch(err => {
+                if(loader) loader.style.display = "none";
+                const fallbackData = [{file: "home.html", title: "الرئيسية"}];
+                renderDrawerContent(fallbackData);
+            });
         }
     }
-    initDrawer();
+    
+    document.addEventListener("DOMContentLoaded", initDrawer);
 </script>
-</body>
 </html>
