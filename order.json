@@ -1,26 +1,50 @@
 [
   {
-    "file": "home.html",
-    "title": "الرئيسية"
-  },
-  {
     "file": "mixhanter.html",
-    "title": "تجريب"
+    "title": "تجريب",
+    "icon": "fa-solid fa-file",
+    "hidden": false,
+    "searchEnabled": true,
+    "searchNames": []
   },
   {
     "file": "icons.html",
-    "title": "ايقونات"
+    "title": "ايقونات",
+    "icon": "fa-solid fa-file",
+    "hidden": false,
+    "searchEnabled": true,
+    "searchNames": []
   },
   {
     "file": "vid.html",
-    "title": "فيديو"
+    "title": "فيديو",
+    "icon": "fa-solid fa-file",
+    "hidden": false,
+    "searchEnabled": true,
+    "searchNames": []
   },
   {
     "file": "sound.html",
-    "title": "صوت"
+    "title": "صوت",
+    "icon": "fa-solid fa-file",
+    "hidden": false,
+    "searchEnabled": true,
+    "searchNames": []
   },
   {
     "file": "ماكس.html",
-    "title": "ماك"
+    "title": "ماك",
+    "icon": "fa-solid fa-file",
+    "hidden": false,
+    "searchEnabled": true,
+    "searchNames": []
+  },
+  {
+    "file": "home.html",
+    "title": "home",
+    "icon": "fa-solid fa-file",
+    "hidden": true,
+    "searchEnabled": true,
+    "searchNames": []
   }
 ]
