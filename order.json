@@ -1,21 +1,5 @@
 [
   {
-    "file": "mixhanter.html",
-    "title": "تجريب",
-    "icon": "fa-solid fa-file",
-    "hidden": false,
-    "searchEnabled": true,
-    "searchNames": []
-  },
-  {
-    "file": "icons.html",
-    "title": "ايقونات",
-    "icon": "fa-solid fa-file",
-    "hidden": false,
-    "searchEnabled": true,
-    "searchNames": []
-  },
-  {
     "file": "vid.html",
     "title": "فيديو",
     "icon": "fa-solid fa-file",
@@ -42,6 +26,22 @@
   {
     "file": "home.html",
     "title": "home",
+    "icon": "fa-solid fa-file",
+    "hidden": true,
+    "searchEnabled": true,
+    "searchNames": []
+  },
+  {
+    "file": "icons.html",
+    "title": "icons",
+    "icon": "fa-solid fa-file",
+    "hidden": true,
+    "searchEnabled": true,
+    "searchNames": []
+  },
+  {
+    "file": "mixhanter.html",
+    "title": "mixhanter",
     "icon": "fa-solid fa-file",
     "hidden": true,
     "searchEnabled": true,
