@@ -1,21 +1,5 @@
 [
   {
-    "file": "vid.html",
-    "title": "فيديو",
-    "icon": "fa-solid fa-file",
-    "hidden": false,
-    "searchEnabled": true,
-    "searchNames": []
-  },
-  {
-    "file": "sound.html",
-    "title": "صوت",
-    "icon": "fa-solid fa-file",
-    "hidden": false,
-    "searchEnabled": true,
-    "searchNames": []
-  },
-  {
     "file": "ماكس.html",
     "title": "ماك",
     "icon": "fa-solid fa-file",
@@ -42,6 +26,22 @@
   {
     "file": "mixhanter.html",
     "title": "mixhanter",
+    "icon": "fa-solid fa-file",
+    "hidden": true,
+    "searchEnabled": true,
+    "searchNames": []
+  },
+  {
+    "file": "sound.html",
+    "title": "sound",
+    "icon": "fa-solid fa-file",
+    "hidden": true,
+    "searchEnabled": true,
+    "searchNames": []
+  },
+  {
+    "file": "vid.html",
+    "title": "vid",
     "icon": "fa-solid fa-file",
     "hidden": true,
     "searchEnabled": true,
