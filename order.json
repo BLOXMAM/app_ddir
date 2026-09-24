@@ -1,13 +1,5 @@
 [
   {
-    "file": "ماكس.html",
-    "title": "ماك",
-    "icon": "fa-solid fa-file",
-    "hidden": false,
-    "searchEnabled": true,
-    "searchNames": []
-  },
-  {
     "file": "home.html",
     "title": "home",
     "icon": "fa-solid fa-file",
@@ -42,6 +34,14 @@
   {
     "file": "vid.html",
     "title": "vid",
+    "icon": "fa-solid fa-file",
+    "hidden": true,
+    "searchEnabled": true,
+    "searchNames": []
+  },
+  {
+    "file": "ماكس.html",
+    "title": "ماكس",
     "icon": "fa-solid fa-file",
     "hidden": true,
     "searchEnabled": true,
