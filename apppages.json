@@ -18,5 +18,9 @@
   "splash.html": {
     "op": "add",
     "timestamp": 1790433055638
+  },
+  "splash_config.json": {
+    "op": "add",
+    "timestamp": 1790433056610
   }
 }
