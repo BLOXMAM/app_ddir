@@ -22,5 +22,9 @@
   "splash_config.json": {
     "op": "update",
     "timestamp": 1790437548863
+  },
+  ".github/workflows/build-apk.yml": {
+    "op": "add",
+    "timestamp": 1791909984156
   }
 }
