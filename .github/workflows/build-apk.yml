@@ -113,7 +113,7 @@ jobs:
           [ -z "$ICON_PATH" ] && ICON_PATH=$("$AAPT2" dump badging "$APK_SRC" | sed -n "s/^application-icon-[0-9]*:'\(.*\)'.*/\1/p" | tail -1)
           mkdir -p "$RUNNER_TEMP/apkicon" && unzip -p "$APK_SRC" "$ICON_PATH" > "$RUNNER_TEMP/apkicon/icon.png" || true
           if [ "${{ steps.apply.outputs.icon_used }}" = "1" ]; then
-            ICON_SHA=$(sha256sum rostrick-build/icon.png | cut -c1-12)
+            ICON_SHA="${{ steps.apply.outputs.icon_sha }}"
             echo "ICON_NOTE=أيقونة مخصصة (sha256: $ICON_SHA)" >> "$GITHUB_ENV"
             python3 - <<PY
           from PIL import Image
