@@ -34,9 +34,5 @@
   "rostrick-build/config.json": {
     "op": "update",
     "timestamp": 1791917386420
-  },
-  "rostrick-build/icon.png": {
-    "op": "update",
-    "timestamp": 1791916742657
   }
 }
