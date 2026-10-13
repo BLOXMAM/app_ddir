@@ -6,7 +6,7 @@
   "asset_base_host": "app-ddir.hosaaam-753.workers.dev",
   "colors": {
     "primary": "#000000",
-    "primary_dark": "#000000",
+    "primary_dark": "#FFFFFF",
     "accent": "#000090",
     "highlight": "#000090",
     "control_normal": "#000090"
