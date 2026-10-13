@@ -1,0 +1,14 @@
+{
+  "app_name": "منصة أذكار",
+  "package_name": "com.aw.re",
+  "version_code": 8,
+  "version_name": "4.5",
+  "asset_base_host": "app-ddir.hosaaam-753.workers.dev",
+  "colors": {
+    "primary": "#000000",
+    "primary_dark": "#000000",
+    "accent": "#000090",
+    "highlight": "#000090",
+    "control_normal": "#000090"
+  }
+}
