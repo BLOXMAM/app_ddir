@@ -159,8 +159,8 @@ jobs:
           else
             gh release create "$TAG" "dist/$APK_NAME" --title "$TAG" --notes "$NOTES" --target "${{ github.sha }}" --latest
           fi
-          # نُبقي آخر 3 ملفات APK فقط في هذا الإصدار
-          gh release view "$TAG" --json assets -q '.assets | sort_by(.createdAt) | reverse | .[3:] | .[].name' | while read -r OLD; do
+          # نُبقي آخر 10 ملفات APK في هذا الإصدار (للسجل)
+          gh release view "$TAG" --json assets -q '.assets | sort_by(.createdAt) | reverse | .[10:] | .[].name' | while read -r OLD; do
             [ -n "$OLD" ] && gh release delete-asset "$TAG" "$OLD" -y || true
           done
           echo "تم النشر: https://github.com/${{ github.repository }}/releases/download/$TAG/$APK_NAME"
