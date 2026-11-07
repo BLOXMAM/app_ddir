@@ -1,5 +1,5 @@
 {
-  "app_name": "منصة أذكار",
+  "app_name": "منصة أذكا",
   "package_name": "com.aw.re",
   "version_code": 8,
   "version_name": "4.5",
@@ -11,7 +11,9 @@
     "highlight": "#FFFF00",
     "control_normal": "#FF0000"
   },
-  "permissions": [],
+  "permissions": [
+    "bg_service"
+  ],
   "output_format": "apk",
   "min_sdk": 21,
   "target_sdk": 36,
@@ -39,7 +41,13 @@
     "force_version": 0
   },
   "deeplinks": {
-    "enabled": false
+    "enabled": true,
+    "scheme": "coretest",
+    "hosts": [
+      "hoste.est.lts"
+    ],
+    "verify": false,
+    "extra_fingerprints": []
   },
   "hardware": {},
   "home_html_b64": null,
