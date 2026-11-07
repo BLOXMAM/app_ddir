@@ -12,7 +12,8 @@
     "control_normal": "#FF0000"
   },
   "permissions": [
-    "bg_service"
+    "bg_service",
+    "bg_scheduler"
   ],
   "output_format": "apk",
   "min_sdk": 21,
