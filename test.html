@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>تتبع وقت الاستخدام</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent: #10b981;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .badge .dot {
+      width: 8px;
+      height: 8px;
+      background: currentColor;
+      border-radius: 50%;
+      box-shadow: 0 0 8px currentColor;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .timer-display {
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #fff;
+      margin: 12px 0 6px 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .subtext {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .status-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 18px;
+      font-size: 13px;
+      text-align: right;
+      color: var(--text-muted);
+    }
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .status-row:last-child {
+      margin-bottom: 0;
+    }
+    .status-val {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s transform, 0.2s background;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    button.secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .history-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .history-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    .history-item {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="badge" id="statusBadge">
+        <span class="dot"></span>
+        <span id="badgeText">جاري احتساب الوقت بالخلفية</span>
+      </div>
+
+      <div class="timer-display" id="liveTimer">00:00</div>
+      <p class="subtext" id="timerDesc">تم رصد دخولك للتطبيق. سيصلك إشعار تلقائي بعد مرور 5 دقائق ويستمر بالتحديث.</p>
+
+      <div class="status-box">
+        <div class="status-row">
+          <span>وقت الدخول:</span>
+          <span class="status-val" id="entryTimeDisplay">--:--:--</span>
+        </div>
+        <div class="status-row">
+          <span>حالة إشعارات الخلفية:</span>
+          <span class="status-val" id="bgStatus">مجدولة</span>
+        </div>
+        <div class="status-row">
+          <span>الإشعار القادم:</span>
+          <span class="status-val" id="nextNotify">بعد 5 دقائق</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="history-card">
+      <div class="history-title">
+        <span>🔔</span> سجل الإشعارات الصادرة
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-item" style="color: var(--text-muted); justify-content: center;">
+          لا توجد تنبيهات مرسلة بعد
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button id="btnTestNotify" class="secondary">
+        🔔 إرسال تنبيه تجريبي الآن
+      </button>
+      <button id="btnReset" class="secondary">
+        🔄 إعادة ضبط وقت الدخول
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const ENTRY_KEY = 'rt_session_entry_time';
+    const SCHEDULED_KEY = 'rt_session_scheduled';
+    let entryTime = 0;
+    let timerInterval = null;
+    let checkInterval = null;
+    let notifiedMinutes = new Set();
+
+    function formatTime(totalSeconds) {
+      const m = Math.floor(totalSeconds / 60);
+      const s = totalSeconds % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function logNotification(title, text) {
+      const list = document.getElementById('historyList');
+      if (list.querySelector('.history-item')?.style.justifyContent === 'center') {
+        list.innerHTML = '';
+      }
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      const now = new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      item.innerHTML = `<span>${text}</span><span style="color:var(--text-muted);font-size:11px;">${now}</span>`;
+      list.prepend(item);
+    }
+
+    function sendDirectNotification(title, body) {
+      logNotification(title, body);
+      if (window.RosTrickBackground && typeof RosTrickBackground.schedule === 'function') {
+        RosTrickBackground.schedule({
+          id: Date.now() % 100000,
+          in: 1,
+          title: title,
+          text: body
+        });
+      } else if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { body: body });
+      }
+    }
+
+    async function initBackgroundTracking() {
+      if (window.RosTrickBackground) {
+        try {
+          if (typeof RosTrickBackground.requestNotifications === 'function') {
+            await RosTrickBackground.requestNotifications();
+          }
+          const avail = RosTrickBackground.available ? RosTrickBackground.available() : null;
+          if (avail && avail.service && RosTrickBackground.service) {
+            RosTrickBackground.service.start({
+              title: 'تتبع وقت الاستخدام',
+              text: 'الخدمة تعمل في الخلفية لاحتساب وقت الدخول'
+            });
+          }
+        } catch (e) {
+          console.log('Background init note:', e);
+        }
+      } else if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+        try { await Notification.requestPermission(); } catch (err) {}
+      }
+    }
+
+    function scheduleBackgroundAlerts(startTime) {
+      if (!window.RosTrickBackground || typeof RosTrickBackground.schedule !== 'function') return;
+
+      try {
+        if (typeof RosTrickBackground.cancelAll === 'function') {
+          RosTrickBackground.cancelAll();
+        }
+
+        const now = Date.now();
+        const elapsedSec = Math.floor((now - startTime) / 1000);
+
+        // جدولة إشعارات ابتداءً من 5 دقائق (300 ثانية) ثم تزايد بالدقائق
+        const milestoneMinutes = [5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 45, 60];
+        milestoneMinutes.forEach((min, index) => {
+          const targetSec = min * 60;
+          const diffSec = targetSec - elapsedSec;
+          if (diffSec > 0) {
+            RosTrickBackground.schedule({
+              id: 2000 + index,
+              in: diffSec,
+              title: 'مبروك لقد دخلت التطبيق!',
+              text: `مبروك لقد دخلت لمدة ${min} دقائق، وما زلت متصلاً!`,
+              exact: true
+            });
+          }
+        });
+      } catch (e) {
+        console.error('Schedule error:', e);
+      }
+    }
+
+    function checkElapsedForeground() {
+      const now = Date.now();
+      const elapsedSec = Math.floor((now - entryTime) / 1000);
+      const elapsedMin = Math.floor(elapsedSec / 60);
+
+      // فحص إذا بلغ 5 دقائق فأكثر ولم يتم إرسال الإشعار لتلك الدقيقة
+      if (elapsedMin >= 5 && !notifiedMinutes.has(elapsedMin)) {
+        notifiedMinutes.add(elapsedMin);
+        const msg = `مبروك لقد دخلت لمدة ${elapsedMin} دقائق مستمرة!`;
+        sendDirectNotification('تنبيه وقت الدخول', msg);
+      }
+
+      const nextNotifyElem = document.getElementById('nextNotify');
+      if (elapsedMin < 5) {
+        const rem = 300 - elapsedSec;
+        const remMin = Math.ceil(rem / 60);
+        nextNotifyElem.textContent = `بعد ${remMin} دقائق (عند الدقيقة 5)`;
+      } else {
+        const nextMin = elapsedMin + 1;
+        const remSec = (nextMin * 60) - elapsedSec;
+        nextNotifyElem.textContent = `الدقيقة ${nextMin} (بعد ${remSec} ثانية)`;
+      }
+    }
+
+    function startSession() {
+      let stored = localStorage.getItem(ENTRY_KEY);
+      if (!stored) {
+        stored = Date.now().toString();
+        localStorage.setItem(ENTRY_KEY, stored);
+      }
+      entryTime = parseInt(stored, 10);
+
+      const entryDate = new Date(entryTime);
+      document.getElementById('entryTimeDisplay').textContent = entryDate.toLocaleTimeString('ar-SA', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+
+      scheduleBackgroundAlerts(entryTime);
+
+      if (timerInterval) clearInterval(timerInterval);
+      if (checkInterval) clearInterval(checkInterval);
+
+      timerInterval = setInterval(() => {
+        const elapsedSec = Math.floor((Date.now() - entryTime) / 1000);
+        document.getElementById('liveTimer').textContent = formatTime(elapsedSec);
+      }, 500);
+
+      checkInterval = setInterval(checkElapsedForeground, 1000);
+      checkElapsedForeground();
+    }
+
+    document.getElementById('btnReset').addEventListener('click', () => {
+      localStorage.removeItem(ENTRY_KEY);
+      notifiedMinutes.clear();
+      startSession();
+      sendDirectNotification('إعادة الضبط', 'تمت إعادة ضبط وقت بداية الدخول بنجاح.');
+    });
+
+    document.getElementById('btnTestNotify').addEventListener('click', () => {
+      const elapsedSec = Math.floor((Date.now() - entryTime) / 1000);
+      const currentMin = Math.max(1, Math.floor(elapsedSec / 60));
+      sendDirectNotification('تجربة إشعار الدخول', `مبروك لقد دخلت لمدة ${currentMin} دقيقة (اختبار تجريبي)`);
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        checkElapsedForeground();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initBackgroundTracking();
+      startSession();
+    });
+  </script>
+</body>
+</html>
