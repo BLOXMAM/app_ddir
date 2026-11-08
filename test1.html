@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>مؤقت العمل والخدمة الخلفية</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px 20px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .header h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #ffffff;
+    }
+
+    .header p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .timer-card {
+      background: #0b1120;
+      border-radius: 20px;
+      padding: 26px 16px;
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timer-display {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #60a5fa;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
+    }
+
+    .timer-sub {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-top: 8px;
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text-muted);
+    }
+
+    .status-badge.running {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: currentColor;
+    }
+
+    .status-badge.running .status-dot {
+      box-shadow: 0 0 8px currentColor;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+    }
+
+    button {
+      flex: 1;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s ease, filter 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .btn-start {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+    }
+
+    .btn-stop {
+      background: var(--danger);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-start:disabled, .btn-stop:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .info-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: right;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .info-card strong {
+      color: #e2e8f0;
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.85rem;
+    }
+
+    .dialog-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 100;
+    }
+
+    .dialog-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .dialog-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+    }
+
+    .dialog-box h2 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #38bdf8;
+    }
+
+    .dialog-box p {
+      font-size: 0.92rem;
+      margin-bottom: 20px;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>متابع العمل الخلفي</h1>
+      <p>خدمة خلفية دائمة تحسب الوقت مع تنبيه مجدول كل 5 دقائق</p>
+    </div>
+
+    <div class="timer-card">
+      <div class="timer-display" id="timeText">00:00:00</div>
+      <div class="timer-sub" id="alertCountdown">التنبيه القادم خلال: 05:00</div>
+      <div class="status-badge" id="statusBadge">
+        <span class="status-dot"></span>
+        <span id="statusText">الخدمة متوقفة</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-start" id="startBtn" onclick="startWork()">
+        <span>بدء العمل</span>
+      </button>
+      <button class="btn-stop" id="stopBtn" onclick="stopWork()" disabled>
+        <span>إنهاء العمل</span>
+      </button>
+    </div>
+
+    <div class="info-card">
+      <strong>ملاحظات النظام:</strong>
+      • خدمة الخلفية الدائمة تبقى نشطة في شريط الإشعارات لمتابعة الوقت حتى مع قفل الشاشة.<br>
+      • يتم إرسال إشعار تنبيهي كل 5 دقائق: <em>"أنهيت 5 دقائق، هل أنهيت عملك؟"</em>.
+    </div>
+  </div>
+
+  <!-- In-app Question Dialog for 5-minute prompt if app is open -->
+  <div class="dialog-overlay" id="workPromptDialog">
+    <div class="dialog-box">
+      <h2>مرت 5 دقائق!</h2>
+      <p>أنهيت 5 دقائق من العمل، هل أنهيت عملك؟</p>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-stop" style="font-size:0.9rem; padding:10px;" onclick="answerDialog(true)">نعم، إنهاء</button>
+        <button class="btn-start" style="font-size:0.9rem; padding:10px;" onclick="answerDialog(false)">لا، المتابعة</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const NOTIF_SCHEDULE_ID = 5055;
+    const INTERVAL_SEC = 300; // 5 minutes = 300 seconds
+
+    let startTime = null;
+    let timerInterval = null;
+    let isRunning = false;
+    let nextAlertTime = null;
+    let alertTimer = null;
+
+    const timeText = document.getElementById('timeText');
+    const alertCountdown = document.getElementById('alertCountdown');
+    const statusBadge = document.getElementById('statusBadge');
+    const statusText = document.getElementById('statusText');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const promptDialog = document.getElementById('workPromptDialog');
+
+    // Helper: format seconds to hh:mm:ss
+    function formatTime(totalSec) {
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    // Helper: format remaining to mm:ss
+    function formatRemaining(totalSec) {
+      if (totalSec < 0) totalSec = 0;
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function updateTimerUI() {
+      if (!startTime) return;
+      const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+      timeText.textContent = formatTime(elapsedSec);
+
+      if (nextAlertTime) {
+        const rem = Math.max(0, Math.ceil((nextAlertTime - Date.now()) / 1000));
+        alertCountdown.textContent = `التنبيه القادم خلال: ${formatRemaining(rem)}`;
+        if (rem <= 0) {
+          // Reset for next 5 mins
+          nextAlertTime = Date.now() + (INTERVAL_SEC * 1000);
+          showWorkDialog();
+        }
+      }
+    }
+
+    async function startWork() {
+      if (isRunning) return;
+
+      const bg = window.RosTrickBackground;
+      let hasBg = false;
+      let hasSched = false;
+
+      if (bg && typeof bg.available === 'function') {
+        const avail = bg.available();
+        hasBg = !!(avail && avail.service);
+        hasSched = !!(avail && avail.scheduler);
+      }
+
+      // Request notification permissions
+      if (bg && bg.requestNotifications) {
+        try { await bg.requestNotifications(); } catch (e) {}
+      } else if ('Notification' in window && Notification.permission !== 'granted') {
+        try { Notification.requestPermission(); } catch (e) {}
+      }
+
+      // Request exact alarm permission if available
+      if (bg && bg.canExactAlarms && !bg.canExactAlarms()) {
+        if (bg.requestExactAlarms) bg.requestExactAlarms();
+      }
+
+      // 1. Persistent background service (ongoing time tracking notification)
+      if (hasBg && bg.service) {
+        bg.service.start({
+          title: "جاري احتساب وقت العمل",
+          text: "الخدمة تعمل في الخلفية وتحسب وقتك بدقة...",
+          page: "test1.html"
+        });
+      }
+
+      // 2. Scheduled notification every 5 minutes (survives app background)
+      if (hasSched && bg.schedule) {
+        bg.schedule({
+          id: NOTIF_SCHEDULE_ID,
+          in: INTERVAL_SEC,
+          repeat: INTERVAL_SEC * 1000, // repeat every 5 minutes (in ms)
+          title: "تنبيه العمل (5 دقائق)",
+          text: "أنهيت 5 دقائق، هل أنهيت عملك؟",
+          page: "test1.html",
+          exact: true
+        });
+      }
+
+      startTime = Date.now();
+      nextAlertTime = Date.now() + (INTERVAL_SEC * 1000);
+      isRunning = true;
+
+      // Save state to localStorage to persist across WebView reload
+      localStorage.setItem('work_active', '1');
+      localStorage.setItem('work_start', startTime.toString());
+      localStorage.setItem('work_next', nextAlertTime.toString());
+
+      // UI updates
+      statusBadge.classList.add('running');
+      statusText.textContent = "الخدمة قيد العمل في الخلفية";
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(updateTimerUI, 1000);
+      updateTimerUI();
+    }
+
+    function stopWork() {
+      const bg = window.RosTrickBackground;
+
+      // Stop Persistent Service
+      if (bg && bg.service && bg.service.stop) {
+        bg.service.stop();
+      }
+
+      // Cancel scheduled notifications
+      if (bg && bg.cancel) {
+        bg.cancel(NOTIF_SCHEDULE_ID);
+      }
+
+      isRunning = false;
+      startTime = null;
+      nextAlertTime = null;
+      clearInterval(timerInterval);
+
+      localStorage.removeItem('work_active');
+      localStorage.removeItem('work_start');
+      localStorage.removeItem('work_next');
+
+      timeText.textContent = "00:00:00";
+      alertCountdown.textContent = "التنبيه القادم خلال: 05:00";
+      statusBadge.classList.remove('running');
+      statusText.textContent = "الخدمة متوقفة";
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      promptDialog.classList.remove('active');
+    }
+
+    function showWorkDialog() {
+      promptDialog.classList.add('active');
+      // Browser fallback notification if not inside native scheduler
+      if (!window.RosTrickBackground && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification("تنبيه العمل (5 دقائق)", {
+          body: "أنهيت 5 دقائق، هل أنهيت عملك؟"
+        });
+      }
+    }
+
+    function answerDialog(finished) {
+      promptDialog.classList.remove('active');
+      if (finished) {
+        stopWork();
+      }
+    }
+
+    // Restore state if app was reopened while service is running
+    window.addEventListener('DOMContentLoaded', () => {
+      const active = localStorage.getItem('work_active') === '1';
+      const storedStart = parseInt(localStorage.getItem('work_start') || '0', 10);
+      const storedNext = parseInt(localStorage.getItem('work_next') || '0', 10);
+
+      const bg = window.RosTrickBackground;
+      const isServiceRunning = bg && bg.service && bg.service.isRunning ? bg.service.isRunning() : active;
+
+      if (active || isServiceRunning) {
+        startTime = storedStart || Date.now();
+        nextAlertTime = storedNext > Date.now() ? storedNext : Date.now() + (INTERVAL_SEC * 1000);
+        isRunning = true;
+
+        statusBadge.classList.add('running');
+        statusText.textContent = "الخدمة قيد العمل في الخلفية";
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+
+        timerInterval = setInterval(updateTimerUI, 1000);
+        updateTimerUI();
+      }
+    });
+  </script>
+</body>
+</html>
