@@ -8,40 +8,16 @@
     "searchNames": []
   },
   {
-    "file": "icons.html",
-    "title": "icons",
+    "file": "test.html",
+    "title": "test",
     "icon": "fa-solid fa-file",
     "hidden": true,
     "searchEnabled": true,
     "searchNames": []
   },
   {
-    "file": "mixhanter.html",
-    "title": "mixhanter",
-    "icon": "fa-solid fa-file",
-    "hidden": true,
-    "searchEnabled": true,
-    "searchNames": []
-  },
-  {
-    "file": "sound.html",
-    "title": "sound",
-    "icon": "fa-solid fa-file",
-    "hidden": true,
-    "searchEnabled": true,
-    "searchNames": []
-  },
-  {
-    "file": "vid.html",
-    "title": "vid",
-    "icon": "fa-solid fa-file",
-    "hidden": true,
-    "searchEnabled": true,
-    "searchNames": []
-  },
-  {
-    "file": "ماكس.html",
-    "title": "ماكس",
+    "file": "test1.html",
+    "title": "test1",
     "icon": "fa-solid fa-file",
     "hidden": true,
     "searchEnabled": true,
